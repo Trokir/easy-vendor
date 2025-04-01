@@ -1,9 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Vendor } from './vendor.entity';
+import { LegalConsent } from './legal-consent.entity';
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ unique: true })
   email: string;
@@ -11,8 +13,14 @@ export class User {
   @Column()
   passwordHash: string;
 
-  @Column({ default: false })
-  emailVerified: boolean;
+  @Column()
+  role: string;
+
+  @OneToMany(() => Vendor, vendor => vendor.user)
+  vendors: Vendor[];
+
+  @OneToMany(() => LegalConsent, consent => consent.user)
+  consents: LegalConsent[];
 
   @CreateDateColumn()
   createdAt: Date;

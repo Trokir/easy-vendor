@@ -1,26 +1,23 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { ConsentType } from '../services/legal-consent/legal-consent.types';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne } from 'typeorm';
+import { User } from './user.entity';
 
 @Entity('legal_consents')
 export class LegalConsent {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column({ name: 'user_id' })
-  userId: string;
-
-  @Column({ name: 'consent_type' })
-  consentType: ConsentType;
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
-  version: string;
+  userId: number;
 
-  @Column({ type: 'jsonb', nullable: true })
-  metadata?: Record<string, any>;
+  @Column()
+  documentType: string;
 
-  @CreateDateColumn({ name: 'accepted_at' })
+  @Column({ nullable: true })
+  ip: string;
+
+  @ManyToOne(() => User, user => user.consents)
+  user: User;
+
+  @CreateDateColumn()
   acceptedAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
 } 
