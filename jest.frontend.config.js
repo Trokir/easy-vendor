@@ -1,23 +1,20 @@
 // jest.frontend.config.js
 module.exports = {
   displayName: 'frontend',
-  testMatch: [
-    '<rootDir>/src/components/**/*.test.{ts,tsx}',
-    '<rootDir>/src/hooks/**/*.test.{ts,tsx}',
-    '<rootDir>/src/utils/**/*.test.{ts,tsx}',
-    '<rootDir>/src/tests/unit/components/**/*.spec.{ts,tsx}',
-  ],
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   transform: {
-    '^.+\\.(ts|tsx)$': [
-      'ts-jest',
-      {
-        tsconfig: 'tsconfig.json',
-      },
-    ],
-    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(ts|tsx|js|jsx)$': ['ts-jest', {
+      isolatedModules: true,
+      useESM: true,
+    }],
   },
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+  testMatch: [
+    '<rootDir>/src/components/**/?(*.)+(spec|test).[jt]s?(x)',
+    '<rootDir>/src/hooks/**/?(*.)+(spec|test).[jt]s?(x)',
+    '<rootDir>/src/utils/**/?(*.)+(spec|test).[jt]s?(x)',
+    '<rootDir>/src/contexts/**/?(*.)+(spec|test).[jt]s?(x)',
+  ],
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -25,16 +22,31 @@ module.exports = {
     '^@sendgrid/mail$': '<rootDir>/src/mocks/sendgrid-mock.js',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(@mui|react-router|react-router-dom)/)'
+    'node_modules/(?!(@mui|@emotion|react-router|react-router-dom)/)'
   ],
-  testEnvironmentOptions: {
-    url: 'http://localhost/',
-    customExportConditions: [''],
-    testURL: 'http://localhost/'
+  globals: {
+    'ts-jest': {
+      tsconfig: './tsconfig.json',
+      isolatedModules: true,
+      useESM: true,
+    },
   },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  moduleDirectories: ['node_modules', 'src'],
+  collectCoverageFrom: [
+    'src/components/**/*.{ts,tsx}',
+    'src/hooks/**/*.{ts,tsx}',
+    'src/utils/**/*.{ts,tsx}',
+    'src/contexts/**/*.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/index.{ts,tsx}',
+    '!src/**/*.stories.{ts,tsx}',
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 70,
+      functions: 70,
+      lines: 70,
+      statements: 70,
+    },
+  },
   verbose: true,
-  bail: false,
-  resolver: undefined
 }; 
