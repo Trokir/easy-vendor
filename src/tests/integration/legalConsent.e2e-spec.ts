@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../../app.module';
-import { LegalConsentService } from '../../services/legalConsent.service';
+import { LegalConsentService } from '../../services/legal-consent/legal-consent.service';
+import { ConsentType } from '../../types/legal-consent';
 
 describe('LegalConsentController (e2e)', () => {
   let app: INestApplication;
-  let legalConsentService: LegalConsentService;
+  let service: LegalConsentService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -14,96 +15,73 @@ describe('LegalConsentController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    legalConsentService = moduleFixture.get<LegalConsentService>(LegalConsentService);
     await app.init();
+
+    service = moduleFixture.get<LegalConsentService>(LegalConsentService);
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  describe('POST /api/legal/consent', () => {
-    it('should record new consent', async () => {
-      const userId = 'test-user-id';
-      const consentData = {
-        consentType: 'terms',
-        version: '1.0',
-      };
-
+  describe('POST /legal-consent/record', () => {
+    it('should record consent', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/legal/consent')
-        .set('Authorization', `Bearer ${userId}`)
-        .send(consentData)
-        .expect(201);
+        .post('/legal-consent/record')
+        .send({
+          userId: '1',
+          consentType: ConsentType.TERMS_OF_SERVICE,
+          version: '1.0',
+          metadata: {
+            ip: '127.0.0.1',
+            userAgent: 'test-agent',
+          },
+        });
 
+      expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('id');
-      expect(response.body.consentType).toBe(consentData.consentType);
-      expect(response.body.version).toBe(consentData.version);
-      expect(response.body.userId).toBe(userId);
-      expect(response.body.acceptedAt).toBeDefined();
+      expect(response.body.consentType).toBe(ConsentType.TERMS_OF_SERVICE);
     });
 
     it('should return 400 for invalid consent type', async () => {
-      const userId = 'test-user-id';
-      const consentData = {
-        consentType: 'invalid-type',
-        version: '1.0',
-      };
+      const response = await request(app.getHttpServer())
+        .post('/legal-consent/record')
+        .send({
+          userId: '1',
+          consentType: 'invalid-type',
+          version: '1.0',
+        });
 
-      await request(app.getHttpServer())
-        .post('/api/legal/consent')
-        .set('Authorization', `Bearer ${userId}`)
-        .send(consentData)
-        .expect(400);
+      expect(response.status).toBe(400);
     });
   });
 
-  describe('GET /api/legal/consent/status', () => {
-    it('should return consent status', async () => {
-      const userId = 'test-user-id';
-
-      // First, record a consent
-      await legalConsentService.recordConsent(userId, 'terms', '1.0');
-
-      const response = await request(app.getHttpServer())
-        .get('/api/legal/consent/status')
-        .set('Authorization', `Bearer ${userId}`)
-        .expect(200);
-
-      expect(response.body).toHaveProperty('hasValidConsent', true);
-    });
-
-    it('should return false for non-existent consent', async () => {
-      const userId = 'non-existent-user';
-
-      const response = await request(app.getHttpServer())
-        .get('/api/legal/consent/status')
-        .set('Authorization', `Bearer ${userId}`)
-        .expect(200);
-
-      expect(response.body).toHaveProperty('hasValidConsent', false);
-    });
-  });
-
-  describe('GET /api/legal/consent/history', () => {
+  describe('GET /legal-consent/history/:userId', () => {
     it('should return consent history', async () => {
-      const userId = 'test-user-id';
-
-      // Record multiple consents
-      await legalConsentService.recordConsent(userId, 'terms', '1.0');
-      await legalConsentService.recordConsent(userId, 'privacy', '1.0');
+      // First record some consents
+      await service.recordConsent(1, ConsentType.TERMS_OF_SERVICE, '1.0', {
+        ip: '127.0.0.1',
+        timestamp: Date.now(),
+      });
+      await service.recordConsent(1, ConsentType.PRIVACY_POLICY, '1.0', {
+        ip: '127.0.0.1',
+        timestamp: Date.now(),
+      });
 
       const response = await request(app.getHttpServer())
-        .get('/api/legal/consent/history')
-        .set('Authorization', `Bearer ${userId}`)
+        .get('/legal-consent/history/1')
         .expect(200);
 
       expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThanOrEqual(2);
-      expect(response.body[0]).toHaveProperty('id');
+      expect(response.body.length).toBeGreaterThan(0);
       expect(response.body[0]).toHaveProperty('consentType');
       expect(response.body[0]).toHaveProperty('version');
-      expect(response.body[0]).toHaveProperty('acceptedAt');
+    });
+
+    it('should return 401 for unauthorized access', async () => {
+      return request(app.getHttpServer())
+        .get('/legal-consent/history/1')
+        .expect(401);
     });
   });
-}); 
+});

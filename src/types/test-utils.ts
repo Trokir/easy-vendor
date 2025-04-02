@@ -49,4 +49,4 @@ declare global {
       toBeAriaValuetext(text: string): R;
     }
   }
-} 
+}

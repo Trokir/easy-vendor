@@ -10,24 +10,24 @@ jest.mock('../utils/db', () => ({
   pool: {
     connect: jest.fn(),
     query: jest.fn(),
-    release: jest.fn()
-  }
+    release: jest.fn(),
+  },
 }));
 
 // Mock JWT
 jest.mock('jsonwebtoken', () => ({
   sign: jest.fn(),
-  verify: jest.fn()
+  verify: jest.fn(),
 }));
 
 // Mock bcrypt
 jest.mock('bcryptjs', () => ({
   genSalt: jest.fn(),
   hash: jest.fn(),
-  compare: jest.fn()
+  compare: jest.fn(),
 }));
 
 // Clear all mocks before each test
 beforeEach(() => {
   jest.clearAllMocks();
-}); 
+});

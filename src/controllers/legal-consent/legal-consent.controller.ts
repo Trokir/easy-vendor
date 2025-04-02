@@ -1,6 +1,10 @@
-import { Controller, Post, Get, Body, Param, HttpCode, HttpStatus, Query } from '@nestjs/common';
-import { LegalConsentService } from '../../services/legal-consent/legal-consent.service';
-import { CreateConsentDto, ConsentResponse, ConsentType } from '../../services/legal-consent/legal-consent.types';
+import { Controller, Post, Get, Body, Param, HttpCode, HttpStatus, Query, ParseIntPipe } from '@nestjs/common';
+import { LegalConsentService } from '../../services/legalConsent.service';
+import {
+  CreateConsentDto,
+  ConsentResponse,
+  ConsentType,
+} from '../../types/consent.types';
 
 @Controller('legal-consent')
 export class LegalConsentController {
@@ -9,26 +13,48 @@ export class LegalConsentController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async createConsent(@Body() createConsentDto: CreateConsentDto): Promise<ConsentResponse> {
-    return this.legalConsentService.recordConsent(
+    const consent = await this.legalConsentService.recordConsent(
       createConsentDto.userId,
       createConsentDto.consentType,
       createConsentDto.version,
-      createConsentDto.metadata,
+      createConsentDto.metadata
     );
+    
+    // Преобразуем LegalConsent в ConsentResponse
+    const response: ConsentResponse = {
+      id: consent.id,
+      userId: consent.userId,
+      consentType: consent.consentType,
+      version: consent.version,
+      acceptedAt: consent.acceptedAt,
+      metadata: consent.metadata ? { timestamp: Date.now(), ...consent.metadata } : { timestamp: Date.now() }
+    };
+    
+    return response;
   }
 
   @Get(':userId')
-  async getConsentHistory(@Param('userId') userId: string): Promise<ConsentResponse[]> {
-    return this.legalConsentService.getConsentHistory(userId);
+  async getConsentHistory(@Param('userId', ParseIntPipe) userId: number): Promise<ConsentResponse[]> {
+    const consents = await this.legalConsentService.getConsentHistory(userId);
+    
+    // Преобразуем LegalConsent[] в ConsentResponse[]
+    return consents.map(consent => ({
+      id: consent.id,
+      userId: consent.userId,
+      consentType: consent.consentType,
+      version: consent.version,
+      acceptedAt: consent.acceptedAt,
+      metadata: consent.metadata ? { timestamp: Date.now(), ...consent.metadata } : { timestamp: Date.now() }
+    }));
   }
 
   @Get(':userId/valid')
   async checkConsentValidity(
-    @Param('userId') userId: string,
+    @Param('userId', ParseIntPipe) userId: number,
     @Query('consentType') consentType: ConsentType,
-    @Query('version') version: string,
+    @Query('version') version: string
   ): Promise<{ isValid: boolean }> {
     const isValid = await this.legalConsentService.hasValidConsent(userId, consentType, version);
     return { isValid };
   }
-} 
+}

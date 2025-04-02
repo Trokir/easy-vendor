@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { LegalConsentService } from '../services/legal-consent/legal-consent.service';
-import { ConsentType, ConsentMetadata } from '../types/legal-consent';
+import { ConsentType, ConsentMetadata } from '../types/consent.types';
+import { getApiBaseUrl } from '../utils/config';
+import { LegalConsentClient } from '../services/legal-consent/legal-consent.client';
 
 interface UseConsentOptions {
-  userId: string;
+  userId: number;
   consentType: ConsentType;
   version: string;
   onError?: (error: string) => void;
@@ -17,7 +18,7 @@ interface UseConsentResult {
   checkConsent: () => Promise<void>;
 }
 
-const legalConsentService = new LegalConsentService();
+const legalConsentClient = new LegalConsentClient(getApiBaseUrl());
 
 export const useConsent = (options: UseConsentOptions): UseConsentResult => {
   const { userId, consentType, version, onError } = options;
@@ -35,12 +36,8 @@ export const useConsent = (options: UseConsentOptions): UseConsentResult => {
     setIsLoading(true);
     setError(null);
     try {
-      const { accepted } = await legalConsentService.checkConsent(
-        userId,
-        consentType,
-        version
-      );
-      setIsAccepted(accepted);
+      const hasValid = await legalConsentClient.hasValidConsent(userId, consentType, version);
+      setIsAccepted(hasValid);
     } catch (err) {
       handleError(err);
     } finally {
@@ -52,14 +49,14 @@ export const useConsent = (options: UseConsentOptions): UseConsentResult => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await legalConsentService.recordConsent(
+      await legalConsentClient.recordConsent(
         userId,
         consentType,
         version,
         metadata
       );
       setIsAccepted(true);
-      return result.success;
+      return true;
     } catch (err) {
       handleError(err);
       return false;
@@ -79,4 +76,4 @@ export const useConsent = (options: UseConsentOptions): UseConsentResult => {
     recordConsent,
     checkConsent,
   };
-}; 
+};

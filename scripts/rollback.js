@@ -4,7 +4,7 @@ const { pool } = require('../utils/db');
 
 async function rollbackMigrations() {
   const client = await pool.connect();
-  
+
   try {
     // Get last executed migration
     const { rows: lastMigration } = await client.query(
@@ -26,17 +26,14 @@ async function rollbackMigrations() {
     }
 
     console.log(`Rolling back migration: ${lastMigrationName}`);
-    
+
     const rollbackSQL = fs.readFileSync(rollbackPath, 'utf8');
-    
+
     await client.query('BEGIN');
-    
+
     try {
       await client.query(rollbackSQL);
-      await client.query(
-        'DELETE FROM migrations WHERE name = $1',
-        [lastMigrationName]
-      );
+      await client.query('DELETE FROM migrations WHERE name = $1', [lastMigrationName]);
       await client.query('COMMIT');
       console.log(`Rollback of ${lastMigrationName} completed successfully`);
     } catch (error) {
@@ -49,4 +46,4 @@ async function rollbackMigrations() {
   }
 }
 
-rollbackMigrations().catch(console.error); 
+rollbackMigrations().catch(console.error);

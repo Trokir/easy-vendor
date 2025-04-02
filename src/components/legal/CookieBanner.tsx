@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Snackbar,
-  Button,
-  Box,
-  Typography,
-  Link,
-  SnackbarContent,
-} from '@mui/material';
+import { Snackbar, Button, Box, Typography, Link, SnackbarContent } from '@mui/material';
 
 interface CookieBannerProps {
   open: boolean;
@@ -50,20 +43,10 @@ export const CookieBanner: React.FC<CookieBannerProps> = ({
               </Link>
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={onDecline}
-                sx={{ minWidth: 100 }}
-              >
+              <Button size="small" variant="outlined" onClick={onDecline} sx={{ minWidth: 100 }}>
                 {declineButtonText}
               </Button>
-              <Button
-                size="small"
-                variant="contained"
-                onClick={onAccept}
-                sx={{ minWidth: 100 }}
-              >
+              <Button size="small" variant="contained" onClick={onAccept} sx={{ minWidth: 100 }}>
                 {acceptButtonText}
               </Button>
             </Box>
@@ -80,4 +63,4 @@ export const CookieBanner: React.FC<CookieBannerProps> = ({
       />
     </Snackbar>
   );
-}; 
+};
