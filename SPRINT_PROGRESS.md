@@ -23,6 +23,7 @@
 | DmcaReportService tests addition        | Blocked     | Olga         |
 | UI performance optimization             | Not started | Ivan         |
 | Privacy Compliance Implementation (Task #54) | Completed | Alex      |
+| Infrastructure Testing Correction (Task #63) | In progress | Ivan      |
 
 ## Problem Analysis and Bottlenecks
 
