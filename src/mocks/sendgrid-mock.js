@@ -2,8 +2,11 @@
 const sendgridMock = {
   setApiKey: jest.fn(),
   send: jest.fn().mockResolvedValue([
-    { statusCode: 202 },
-    { headers: {} }
+    {
+      statusCode: 202,
+      body: {},
+      headers: {}
+    }
   ]),
   setTwilioEmail: jest.fn(),
   sendMultiple: jest.fn(),

@@ -28,7 +28,11 @@ console.error = (...args) => {
      args[0].includes('The current testing environment is not configured to support act') ||
      args[0].includes('Material-UI:') ||
      args[0].includes('Warning: A component is changing') ||
-     args[0].includes('Warning: Failed prop type'))
+     args[0].includes('Warning: Failed prop type') ||
+     /Warning.*not wrapped in act/.test(args[0]) ||
+     /Warning.*unmountComponentAtNode/.test(args[0]) ||
+     /Warning.*ReactDOM.render is no longer supported/.test(args[0]) ||
+     /Warning.*ReactDOMTestUtils.act/.test(args[0]))
   ) {
     return; // Filter out unimportant warnings
   }
@@ -110,10 +114,26 @@ class StorageMock {
   removeItem(key) {
     delete this.store[key];
   }
+
+  get length() {
+    return Object.keys(this.store).length;
+  }
+
+  key(index) {
+    return Object.keys(this.store)[index] || null;
+  }
 }
 
 global.localStorage = new StorageMock();
 global.sessionStorage = new StorageMock();
+
+// Mock for fetch API
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({}),
+  })
+);
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
