@@ -1,4 +1,10 @@
-export type ConsentType = 'terms' | 'privacy' | 'cookies' | 'marketing';
+export enum ConsentType {
+  COOKIE_POLICY = 'cookie_policy',
+  PRIVACY_POLICY = 'privacy_policy',
+  TERMS_OF_SERVICE = 'terms_of_service',
+  MARKETING = 'marketing',
+  DATA_PROCESSING = 'data_processing',
+}
 
 export interface ConsentMetadata {
   timestamp: number;
@@ -16,4 +22,4 @@ export interface ConsentHistoryItem {
   accepted: boolean;
   timestamp: number;
   metadata?: ConsentMetadata;
-} 
+}

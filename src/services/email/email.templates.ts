@@ -1,17 +1,4 @@
-import { ConsentType } from '../legal-consent/legal-consent.types';
+// Файл перенаправления на основную версию из src/services/email.service.ts
+// Для обеспечения обратной совместимости
 
-export interface EmailTemplateData {
-  consentType: ConsentType;
-  version: string;
-  acceptedAt: string;
-  userEmail: string;
-}
-
-export const getEmailSubject = (consentType: ConsentType): string => {
-  const subjects = {
-    terms: 'Terms of Service Agreement',
-    privacy: 'Privacy Policy Agreement',
-    cookies: 'Cookie Policy Agreement',
-  };
-  return subjects[consentType] || 'Legal Agreement';
-}; 
+export { EmailTemplateData, getEmailSubject } from '../email.service';

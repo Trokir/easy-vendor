@@ -10,25 +10,25 @@ Cookies are small text files stored on your device when you visit our website. T
 
 ### 2.1 Essential Cookies
 
-| Cookie Name | Purpose | Duration | Provider |
-|-------------|---------|----------|----------|
-| auth_token | Authentication | Session | Easy Vendor |
-| csrf_token | Security | Session | Easy Vendor |
+| Cookie Name | Purpose        | Duration | Provider    |
+| ----------- | -------------- | -------- | ----------- |
+| auth_token  | Authentication | Session  | Easy Vendor |
+| csrf_token  | Security       | Session  | Easy Vendor |
 
 ### 2.2 Analytics Cookies
 
-| Cookie Name | Purpose | Duration | Provider |
-|-------------|---------|----------|----------|
-| _ga | Google Analytics | 2 years | Google |
-| _gid | Google Analytics | 24 hours | Google |
-| _gat | Google Analytics | 1 minute | Google |
+| Cookie Name | Purpose          | Duration | Provider |
+| ----------- | ---------------- | -------- | -------- |
+| \_ga        | Google Analytics | 2 years  | Google   |
+| \_gid       | Google Analytics | 24 hours | Google   |
+| \_gat       | Google Analytics | 1 minute | Google   |
 
 ### 2.3 Preference Cookies
 
-| Cookie Name | Purpose | Duration | Provider |
-|-------------|---------|----------|----------|
-| theme | UI Theme | 30 days | Easy Vendor |
-| language | Language | 30 days | Easy Vendor |
+| Cookie Name | Purpose  | Duration | Provider    |
+| ----------- | -------- | -------- | ----------- |
+| theme       | UI Theme | 30 days  | Easy Vendor |
+| language    | Language | 30 days  | Easy Vendor |
 
 ### 2.4 Marketing Cookies
 
@@ -125,6 +125,7 @@ You can manage your cookie preferences through our cookie consent banner:
 ### 8.1 Changes
 
 We may update this policy to:
+
 - Add new cookies
 - Change cookie purposes
 - Update providers
@@ -133,6 +134,7 @@ We may update this policy to:
 ### 8.2 Notification
 
 We notify users of changes via:
+
 - Website banner
 - Email notification
 - Dashboard alert
@@ -140,6 +142,7 @@ We notify users of changes via:
 ## 9. Contact Us
 
 For cookie-related questions:
+
 - Email: privacy@easyvendor.com
 - Address: [Company Address]
 - Phone: [Company Phone]
@@ -147,6 +150,7 @@ For cookie-related questions:
 ## 10. California Privacy Rights
 
 Under CCPA, California residents have the right to:
+
 - Know what cookies are used
 - Opt-out of non-essential cookies
 - Request cookie deletion
@@ -166,4 +170,4 @@ Under CCPA, California residents have the right to:
 - Local privacy laws
 - Regional requirements
 - Cultural considerations
-- Language support 
+- Language support

@@ -21,4 +21,4 @@ export class RecordConsentDto {
   @IsObject()
   @IsOptional()
   metadata?: Record<string, any>;
-} 
+}

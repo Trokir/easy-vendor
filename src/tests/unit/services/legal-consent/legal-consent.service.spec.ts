@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LegalConsentService } from '../../../../services/legal-consent/legal-consent.service';
+import { NotFoundException } from '@nestjs/common';
+import { LegalConsentService } from '../../../../services/legalConsent.service';
 import { LegalConsent } from '../../../../entities/legal-consent.entity';
 import { User } from '../../../../entities/user.entity';
-import { EmailService } from '../../../../services/email/email.service';
-import { ConsentType } from '../../../../services/legal-consent/legal-consent.types';
+import { EmailService } from '../../../../services/email.service';
+import { ConsentType } from '../../../../types/legal-consent';
 
 describe('LegalConsentService', () => {
   let service: LegalConsentService;
@@ -66,10 +67,15 @@ describe('LegalConsentService', () => {
 
   describe('recordConsent', () => {
     it('should create and save a new consent record', async () => {
-      const userId = 'test-user-id';
-      const consentType: ConsentType = 'terms';
+      const userId = 1;
+      const consentType = ConsentType.TERMS_OF_SERVICE;
       const version = '1.0';
       const metadata = { ip: '127.0.0.1' };
+
+      const mockUser = {
+        id: userId,
+        email: 'test@example.com',
+      };
 
       const mockConsent = {
         id: 'test-id',
@@ -80,6 +86,7 @@ describe('LegalConsentService', () => {
         acceptedAt: new Date(),
       };
 
+      mockUserRepository.findOne.mockResolvedValue(mockUser);
       mockRepository.create.mockReturnValue(mockConsent);
       mockRepository.save.mockResolvedValue(mockConsent);
 
@@ -97,11 +104,12 @@ describe('LegalConsentService', () => {
     });
 
     it('should throw error when user not found', async () => {
+      const nonExistentId = 999;
       mockUserRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.recordConsent('non-existent-id', 'terms', '1.0')
-      ).rejects.toThrow('User not found');
+      await expect(service.recordConsent(nonExistentId, ConsentType.TERMS_OF_SERVICE, '1.0')).rejects.toThrow(
+        NotFoundException
+      );
 
       expect(mockRepository.create).not.toHaveBeenCalled();
       expect(mockRepository.save).not.toHaveBeenCalled();
@@ -109,7 +117,7 @@ describe('LegalConsentService', () => {
     });
 
     it('should save consent even if email service fails', async () => {
-      const userId = 'test-user-id';
+      const userId = 1;
       const mockUser = {
         id: userId,
         email: 'test@example.com',
@@ -117,7 +125,7 @@ describe('LegalConsentService', () => {
       const mockConsent = {
         id: 'test-id',
         userId,
-        consentType: 'terms' as ConsentType,
+        consentType: ConsentType.TERMS_OF_SERVICE,
         version: '1.0',
         acceptedAt: new Date(),
       };
@@ -129,7 +137,7 @@ describe('LegalConsentService', () => {
         throw new Error('Email error');
       });
 
-      const result = await service.recordConsent(userId, 'terms', '1.0');
+      const result = await service.recordConsent(userId, ConsentType.TERMS_OF_SERVICE, '1.0');
 
       expect(result).toEqual(mockConsent);
       expect(mockEmailService.sendLegalConsentConfirmation).toHaveBeenCalled();
@@ -139,19 +147,19 @@ describe('LegalConsentService', () => {
 
   describe('getConsentHistory', () => {
     it('should return consent history for a user', async () => {
-      const userId = 'test-user-id';
+      const userId = 1;
       const mockConsents = [
         {
           id: 'test-id-1',
           userId,
-          consentType: 'terms',
+          consentType: ConsentType.TERMS_OF_SERVICE,
           version: '1.0',
           acceptedAt: new Date(),
         },
         {
           id: 'test-id-2',
           userId,
-          consentType: 'privacy',
+          consentType: ConsentType.PRIVACY_POLICY,
           version: '1.0',
           acceptedAt: new Date(),
         },
@@ -171,8 +179,8 @@ describe('LegalConsentService', () => {
 
   describe('hasValidConsent', () => {
     it('should return true when user has valid consent', async () => {
-      const userId = 'test-user-id';
-      const consentType: ConsentType = 'terms';
+      const userId = 1;
+      const consentType = ConsentType.TERMS_OF_SERVICE;
       const version = '1.0';
 
       const mockConsent = {
@@ -199,8 +207,8 @@ describe('LegalConsentService', () => {
     });
 
     it('should return false when user has no valid consent', async () => {
-      const userId = 'test-user-id';
-      const consentType: ConsentType = 'terms';
+      const userId = 1;
+      const consentType = ConsentType.TERMS_OF_SERVICE;
       const version = '1.0';
 
       mockRepository.findOne.mockResolvedValue(null);
@@ -210,4 +218,4 @@ describe('LegalConsentService', () => {
       expect(result).toBe(false);
     });
   });
-}); 
+});

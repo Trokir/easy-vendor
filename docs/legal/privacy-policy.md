@@ -9,12 +9,14 @@ This Privacy Policy describes how Easy Vendor collects, uses, and protects your 
 ## 2. Information We Collect
 
 ### 2.1. Personal Information
+
 - Name and contact information
 - Account credentials
 - Payment information
 - Business information
 
 ### 2.2. Usage Data
+
 - Log data
 - Device information
 - IP address
@@ -39,9 +41,10 @@ This Privacy Policy describes how Easy Vendor collects, uses, and protects your 
 
 5.1. We do not sell your personal information
 5.2. We may share data with:
-   - Service providers
-   - Legal authorities when required
-   - Business partners with your consent
+
+- Service providers
+- Legal authorities when required
+- Business partners with your consent
 
 ## 6. Your Rights (GDPR & CCPA)
 
@@ -55,10 +58,11 @@ This Privacy Policy describes how Easy Vendor collects, uses, and protects your 
 ## 7. Cookies
 
 7.1. We use cookies to:
-   - Maintain your session
-   - Remember your preferences
-   - Analyze usage patterns
-7.2. You can control cookie settings in your browser
+
+- Maintain your session
+- Remember your preferences
+- Analyze usage patterns
+  7.2. You can control cookie settings in your browser
 
 ## 8. Children's Privacy
 
@@ -73,5 +77,6 @@ This Privacy Policy describes how Easy Vendor collects, uses, and protects your 
 ## 10. Contact Us
 
 For privacy-related questions, please contact:
+
 - Email: privacy@easyvendor.com
-- Address: [Company Address] 
+- Address: [Company Address]

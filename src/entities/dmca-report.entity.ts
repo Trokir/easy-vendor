@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { DmcaReportStatus } from '../dto/dmca-report.dto';
 
 @Entity('dmca_reports')
 export class DmcaReport {
@@ -6,32 +13,42 @@ export class DmcaReport {
   id: string;
 
   @Column()
+  claimantName: string;
+
+  @Column()
+  claimantEmail: string;
+
+  @Column({ nullable: true })
+  respondentEmail?: string;
+
+  @Column()
   contentUrl: string;
 
   @Column()
-  complainantName: string;
+  originalWorkUrl: string;
 
-  @Column()
-  complainantEmail: string;
-
-  @Column()
-  complainantPhone: string;
-
-  @Column({ type: 'text' })
+  @Column('text')
   description: string;
 
-  @Column({ default: false })
-  isProcessed: boolean;
+  @Column()
+  isSwornStatement: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
-  processedAt: Date;
+  @Column({
+    type: 'enum',
+    enum: DmcaReportStatus,
+    default: DmcaReportStatus.PENDING
+  })
+  status: DmcaReportStatus;
 
-  @Column({ type: 'text', nullable: true })
-  processingNotes: string;
+  @Column({ nullable: true })
+  adminNotes?: string;
+
+  @Column({ nullable: true })
+  assignedTo?: string;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

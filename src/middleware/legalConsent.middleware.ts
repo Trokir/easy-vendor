@@ -14,15 +14,15 @@ export class LegalConsentGuard implements CanActivate {
     }
 
     const hasConsent = await this.legalConsentService.hasValidConsent(userId);
-    
+
     if (!hasConsent) {
       throw new ForbiddenException({
         message: 'Legal consent required',
         code: 'LEGAL_CONSENT_REQUIRED',
-        redirectUrl: '/legal/terms'
+        redirectUrl: '/legal/terms',
       });
     }
 
     return true;
   }
-} 
+}

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -72,13 +72,11 @@ describe('AuthController (e2e)', () => {
     });
 
     it('should not register user with existing email', async () => {
-      await request(app.getHttpServer())
-        .post('/auth/register')
-        .send({
-          email: 'test3@example.com',
-          password: 'password123',
-          termsAccepted: true,
-        });
+      await request(app.getHttpServer()).post('/auth/register').send({
+        email: 'test3@example.com',
+        password: 'password123',
+        termsAccepted: true,
+      });
 
       return request(app.getHttpServer())
         .post('/auth/register')
@@ -90,4 +88,4 @@ describe('AuthController (e2e)', () => {
         .expect(409);
     });
   });
-}); 
+});

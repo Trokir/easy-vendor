@@ -14,4 +14,4 @@ export interface ConsentResponse {
   version: string;
   acceptedAt: Date;
   metadata?: Record<string, any>;
-} 
+}

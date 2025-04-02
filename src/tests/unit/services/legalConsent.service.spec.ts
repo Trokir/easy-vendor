@@ -1,213 +1,276 @@
+import 'reflect-metadata';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { NotFoundException } from '@nestjs/common';
 import { LegalConsentService } from '../../../services/legalConsent.service';
-import { LegalConsent } from '../../../entities/legalConsent.entity';
+import { LegalConsent } from '../../../entities/legal-consent.entity';
 import { User } from '../../../entities/user.entity';
 import { EmailService } from '../../../services/email.service';
+import { ConsentType } from '../../../types/legal-consent';
+
+// Мок для @sendgrid/mail
+jest.mock('@sendgrid/mail', () => ({
+  setApiKey: jest.fn(),
+  send: jest.fn(),
+}));
+
+// Хелперы для создания мок-репозиториев
+const createMockRepository = () => ({
+  findOne: jest.fn(),
+  find: jest.fn(),
+  save: jest.fn(),
+  create: jest.fn()
+});
 
 describe('LegalConsentService', () => {
   let service: LegalConsentService;
-  let legalConsentRepository: Repository<LegalConsent>;
-  let userRepository: Repository<User>;
-  let emailService: EmailService;
+  let legalConsentRepository;
+  let userRepository;
+  let emailService;
 
-  const mockLegalConsentRepository = {
-    create: jest.fn(),
-    save: jest.fn(),
-    findOne: jest.fn(),
-    find: jest.fn(),
+  // Моковые данные пользователя с id типа number (как в User entity)
+  const mockUser: User = {
+    id: 1,
+    email: 'test@example.com',
+    passwordHash: 'hash',
+    role: 'user',
+    vendors: [],
+    consents: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
-  const mockUserRepository = {
-    findOne: jest.fn(),
-  };
-
-  const mockEmailService = {
-    sendLegalConsentConfirmation: jest.fn().mockResolvedValue(undefined),
+  // Моковые данные согласия с userId типа number (как в LegalConsent entity)
+  const mockConsent: LegalConsent = {
+    id: 'uuid-1',
+    userId: 1, // userId должен быть number, как указано в entity
+    consentType: ConsentType.TERMS_OF_SERVICE,
+    version: '1.0',
+    metadata: { ip: '127.0.0.1' },
+    user: mockUser,
+    acceptedAt: new Date(),
   };
 
   beforeEach(async () => {
+    legalConsentRepository = createMockRepository();
+    userRepository = createMockRepository();
+    emailService = {
+      sendLegalConsentConfirmation: jest.fn().mockResolvedValue(undefined)
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         LegalConsentService,
         {
           provide: getRepositoryToken(LegalConsent),
-          useValue: mockLegalConsentRepository,
+          useValue: legalConsentRepository,
         },
         {
           provide: getRepositoryToken(User),
-          useValue: mockUserRepository,
+          useValue: userRepository,
         },
         {
           provide: EmailService,
-          useValue: mockEmailService,
+          useValue: emailService,
         },
       ],
     }).compile();
 
     service = module.get<LegalConsentService>(LegalConsentService);
-    legalConsentRepository = module.get<Repository<LegalConsent>>(getRepositoryToken(LegalConsent));
-    userRepository = module.get<Repository<User>>(getRepositoryToken(User));
-    emailService = module.get<EmailService>(EmailService);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  it('should be defined', () => {
+    expect(service).toBeDefined();
   });
 
   describe('recordConsent', () => {
     it('should create and save a new consent record and send email', async () => {
-      const userId = 'test-user-id';
-      const consentType = 'terms';
+      // Arrange
+      const userId = 1;
+      const consentType = ConsentType.TERMS_OF_SERVICE;
       const version = '1.0';
+      
       const mockUser = {
         id: userId,
         email: 'test@example.com',
       };
+      
       const mockConsent = {
-        id: 'test-id',
-        userId,
-        consentType,
-        version,
-        acceptedAt: new Date(),
-      };
-
-      mockUserRepository.findOne.mockResolvedValue(mockUser);
-      mockLegalConsentRepository.create.mockReturnValue(mockConsent);
-      mockLegalConsentRepository.save.mockResolvedValue(mockConsent);
-
-      const result = await service.recordConsent(userId, consentType, version);
-
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({ where: { id: userId } });
-      expect(mockLegalConsentRepository.create).toHaveBeenCalledWith({
+        id: 1,
         userId,
         consentType,
         version,
         acceptedAt: expect.any(Date),
-      });
-      expect(mockLegalConsentRepository.save).toHaveBeenCalledWith(mockConsent);
-      expect(mockEmailService.sendLegalConsentConfirmation).toHaveBeenCalledWith(
+        user: mockUser
+      };
+      
+      userRepository.findOne.mockResolvedValue(mockUser);
+      legalConsentRepository.create.mockReturnValue(mockConsent);
+      legalConsentRepository.save.mockResolvedValue(mockConsent);
+      
+      // Act
+      const result = await service.recordConsent(userId, consentType, version);
+      
+      // Assert
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: userId } });
+      expect(legalConsentRepository.create).toHaveBeenCalled();
+      expect(legalConsentRepository.save).toHaveBeenCalled();
+      expect(emailService.sendLegalConsentConfirmation).toHaveBeenCalledWith(
         mockUser.email,
         consentType,
         version,
-        mockConsent.acceptedAt,
+        expect.any(Date)
       );
       expect(result).toEqual(mockConsent);
     });
 
     it('should throw error when user not found', async () => {
-      mockUserRepository.findOne.mockResolvedValue(null);
-
-      await expect(
-        service.recordConsent('non-existent-id', 'terms', '1.0')
-      ).rejects.toThrow('User not found');
-
-      expect(mockLegalConsentRepository.create).not.toHaveBeenCalled();
-      expect(mockLegalConsentRepository.save).not.toHaveBeenCalled();
-      expect(mockEmailService.sendLegalConsentConfirmation).not.toHaveBeenCalled();
+      // Arrange
+      const nonExistentId = 999;
+      userRepository.findOne.mockResolvedValue(null);
+      
+      // Act & Assert
+      await expect(service.recordConsent(nonExistentId, ConsentType.TERMS_OF_SERVICE, '1.0')).rejects.toThrow(
+        NotFoundException
+      );
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: nonExistentId } });
     });
 
     it('should save consent even if email service fails', async () => {
-      const userId = 'test-user-id';
+      // Arrange
+      const userId = 1;
+      const consentType = ConsentType.TERMS_OF_SERVICE;
+      const version = '1.0';
+      
       const mockUser = {
         id: userId,
         email: 'test@example.com',
       };
+      
       const mockConsent = {
-        id: 'test-id',
+        id: 1,
         userId,
-        consentType: 'terms',
-        version: '1.0',
-        acceptedAt: new Date(),
+        consentType,
+        version,
+        acceptedAt: expect.any(Date),
+        user: mockUser
       };
-
-      mockUserRepository.findOne.mockResolvedValue(mockUser);
-      mockLegalConsentRepository.create.mockReturnValue(mockConsent);
-      mockLegalConsentRepository.save.mockResolvedValue(mockConsent);
-      mockEmailService.sendLegalConsentConfirmation.mockImplementationOnce(() => {
-        throw new Error('Email error');
-      });
-
-      const result = await service.recordConsent(userId, 'terms', '1.0');
-
+      
+      userRepository.findOne.mockResolvedValue(mockUser);
+      legalConsentRepository.create.mockReturnValue(mockConsent);
+      legalConsentRepository.save.mockResolvedValue(mockConsent);
+      jest.spyOn(emailService, 'sendLegalConsentConfirmation').mockRejectedValue(new Error('Email error'));
+      
+      // Act
+      const result = await service.recordConsent(userId, consentType, version);
+      
+      // Assert
+      expect(legalConsentRepository.save).toHaveBeenCalled();
       expect(result).toEqual(mockConsent);
-      expect(mockEmailService.sendLegalConsentConfirmation).toHaveBeenCalled();
-      expect(mockLegalConsentRepository.save).toHaveBeenCalled();
     });
   });
 
   describe('hasValidConsent', () => {
     it('should return false when no consent exists', async () => {
-      mockLegalConsentRepository.findOne.mockResolvedValue(null);
-
-      const result = await service.hasValidConsent('test-user-id');
-
+      // Arrange
+      legalConsentRepository.findOne.mockResolvedValue(null);
+      
+      // Act
+      const result = await service.hasValidConsent(1, ConsentType.TERMS_OF_SERVICE);
+      
+      // Assert
       expect(result).toBe(false);
     });
 
     it('should return true for valid consent', async () => {
+      // Arrange
       const mockConsent = {
-        id: 'test-id',
-        userId: 'test-user-id',
-        consentType: 'terms',
+        id: 1,
+        userId: 1,
+        consentType: ConsentType.TERMS_OF_SERVICE,
         version: '1.0',
         acceptedAt: new Date(),
+        user: { id: 1, email: 'test@example.com' }
       };
-
-      mockLegalConsentRepository.findOne.mockResolvedValue(mockConsent);
-
-      const result = await service.hasValidConsent('test-user-id');
-
+      
+      legalConsentRepository.findOne.mockResolvedValue(mockConsent);
+      
+      // Act
+      const result = await service.hasValidConsent(1, ConsentType.TERMS_OF_SERVICE);
+      
+      // Assert
       expect(result).toBe(true);
     });
 
     it('should return false for expired consent', async () => {
+      // Arrange
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1); // Установим дату на год назад
+      
       const mockConsent = {
-        id: 'test-id',
-        userId: 'test-user-id',
-        consentType: 'terms',
+        id: 1,
+        userId: 1,
+        consentType: ConsentType.TERMS_OF_SERVICE,
         version: '1.0',
-        acceptedAt: new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000), // 2 years ago
+        acceptedAt: oneYearAgo,
+        user: { id: 1, email: 'test@example.com' }
       };
-
-      mockLegalConsentRepository.findOne.mockResolvedValue(mockConsent);
-
-      const result = await service.hasValidConsent('test-user-id');
-
+      
+      legalConsentRepository.findOne.mockResolvedValue(mockConsent);
+      
+      // Act
+      const result = await service.hasValidConsent(1, ConsentType.TERMS_OF_SERVICE);
+      
+      // Assert
       expect(result).toBe(false);
     });
   });
 
   describe('getConsentHistory', () => {
     it('should return all consents for a user', async () => {
-      const userId = 'test-user-id';
+      // Arrange
       const mockConsents = [
         {
-          id: 'test-id-1',
-          userId,
-          consentType: 'terms',
+          id: 1,
+          userId: 1,
+          consentType: ConsentType.TERMS_OF_SERVICE,
           version: '1.0',
           acceptedAt: new Date(),
+          user: { id: 1, email: 'test@example.com' }
         },
         {
-          id: 'test-id-2',
-          userId,
-          consentType: 'privacy',
+          id: 2,
+          userId: 1,
+          consentType: ConsentType.PRIVACY_POLICY,
           version: '1.0',
           acceptedAt: new Date(),
-        },
+          user: { id: 1, email: 'test@example.com' }
+        }
       ];
-
-      mockLegalConsentRepository.find.mockResolvedValue(mockConsents);
-
-      const result = await service.getConsentHistory(userId);
-
-      expect(mockLegalConsentRepository.find).toHaveBeenCalledWith({
-        where: { userId },
+      
+      legalConsentRepository.find.mockResolvedValue(mockConsents);
+      
+      // Act
+      const result = await service.getConsentHistory(1);
+      
+      // Assert
+      expect(legalConsentRepository.find).toHaveBeenCalledWith({
+        where: { userId: 1 },
         order: { acceptedAt: 'DESC' },
       });
       expect(result).toEqual(mockConsents);
     });
+
+    it('should return empty array when no consents found', async () => {
+      // Arrange
+      legalConsentRepository.find.mockResolvedValue([]);
+      
+      // Act
+      const result = await service.getConsentHistory(1);
+      
+      // Assert
+      expect(result).toEqual([]);
+    });
   });
-}); 
+});

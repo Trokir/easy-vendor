@@ -1,47 +1,128 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { renderWithProviders, screen, fireEvent, waitForComponentToPaint } from '../../mocks/test-utils';
 import { ConsentCheckbox } from './ConsentCheckbox';
-
-const theme = createTheme();
-
-const renderWithTheme = (component: React.ReactElement) => {
-  return render(<ThemeProvider theme={theme}>{component}</ThemeProvider>);
-};
+import { LegalConsentContext } from '../../mocks/context';
 
 describe('ConsentCheckbox', () => {
-  it('renders correctly', () => {
-    renderWithTheme(<ConsentCheckbox checked={false} onChange={() => {}} />);
-    expect(screen.getByRole('checkbox')).toBeInTheDocument();
-    expect(screen.getByText(/Terms of Service/)).toBeInTheDocument();
-    expect(screen.getByText(/Privacy Policy/)).toBeInTheDocument();
+  const mockOnChange = jest.fn();
+  
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
-
-  it('handles changes', () => {
-    const onChange = jest.fn();
-    renderWithTheme(<ConsentCheckbox checked={false} onChange={onChange} />);
+  
+  it('renders correctly', async () => {
+    renderWithProviders(
+      <ConsentCheckbox
+        label="I accept the"
+        checked={false}
+        onChange={mockOnChange}
+      />
+    );
+    
+    await waitForComponentToPaint();
+    expect(screen.getByText(/I accept the/)).toBeInTheDocument();
+    expect(screen.getByRole('checkbox')).not.toBeChecked();
+  });
+  
+  it('calls onChange when clicked', async () => {
+    renderWithProviders(
+      <ConsentCheckbox
+        label="I accept the"
+        checked={false}
+        onChange={mockOnChange}
+      />
+    );
+    
+    await waitForComponentToPaint();
     fireEvent.click(screen.getByRole('checkbox'));
-    expect(onChange).toHaveBeenCalledWith(true);
+    await waitForComponentToPaint();
+    
+    expect(mockOnChange).toHaveBeenCalledWith(true);
   });
-
-  it('shows error state', () => {
-    renderWithTheme(<ConsentCheckbox checked={false} onChange={() => {}} error={true} />);
-    expect(screen.getByRole('checkbox')).toHaveAttribute('aria-invalid', 'true');
+  
+  it('can be pre-checked', async () => {
+    renderWithProviders(
+      <ConsentCheckbox
+        label="I accept the"
+        checked={true}
+        onChange={mockOnChange}
+      />
+    );
+    
+    await waitForComponentToPaint();
+    expect(screen.getByRole('checkbox')).toBeChecked();
   });
-
-  it('uses custom label', () => {
-    const customLabel = 'Custom label';
-    renderWithTheme(<ConsentCheckbox checked={false} onChange={() => {}} label={customLabel} />);
-    expect(screen.getByText(customLabel)).toBeInTheDocument();
+  
+  it('displays link to terms when provided', async () => {
+    renderWithProviders(
+      <ConsentCheckbox
+        label="I accept the"
+        checked={false}
+        onChange={mockOnChange}
+        termsLink="/custom-terms"
+      />
+    );
+    
+    await waitForComponentToPaint();
+    const termsLink = screen.getByText('Terms of Service');
+    expect(termsLink).toBeInTheDocument();
+    expect(termsLink.closest('a')).toHaveAttribute('href', '/custom-terms');
   });
-
-  it('is required by default', () => {
-    renderWithTheme(<ConsentCheckbox checked={false} onChange={() => {}} />);
+  
+  it('can be disabled', async () => {
+    renderWithProviders(
+      <ConsentCheckbox
+        label="I accept the"
+        checked={false}
+        onChange={mockOnChange}
+        disabled={true}
+      />
+    );
+    
+    await waitForComponentToPaint();
+    expect(screen.getByRole('checkbox')).toBeDisabled();
+  });
+  
+  it('displays error state', async () => {
+    renderWithProviders(
+      <ConsentCheckbox
+        label="I accept the"
+        checked={false}
+        onChange={mockOnChange}
+        error={true}
+      />
+    );
+    
+    await waitForComponentToPaint();
+    // Проверка, что checkbox использует color="error"
+    const checkbox = screen.getByTestId('checkbox-container');
+    expect(checkbox).toHaveClass('MuiCheckbox-colorError');
+  });
+  
+  it('is required by default', async () => {
+    renderWithProviders(
+      <ConsentCheckbox
+        label="I accept the"
+        checked={false}
+        onChange={mockOnChange}
+      />
+    );
+    
+    await waitForComponentToPaint();
     expect(screen.getByRole('checkbox')).toBeRequired();
   });
-
-  it('can be optional', () => {
-    renderWithTheme(<ConsentCheckbox checked={false} onChange={() => {}} required={false} />);
+  
+  it('can be optional', async () => {
+    renderWithProviders(
+      <ConsentCheckbox
+        label="I accept the"
+        checked={false}
+        onChange={mockOnChange}
+        required={false}
+      />
+    );
+    
+    await waitForComponentToPaint();
     expect(screen.getByRole('checkbox')).not.toBeRequired();
   });
-}); 
+});

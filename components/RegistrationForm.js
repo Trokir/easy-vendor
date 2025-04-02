@@ -5,10 +5,10 @@ const RegistrationForm = ({ onSubmit }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    acceptedTerms: false
+    acceptedTerms: false,
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
     if (!formData.acceptedTerms) {
       alert('Please accept the Terms of Service and Privacy Policy');
@@ -17,20 +17,18 @@ const RegistrationForm = ({ onSubmit }) => {
     onSubmit(formData);
   };
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto p-6">
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2">
-          Email
-        </label>
+        <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
         <input
           type="email"
           name="email"
@@ -42,9 +40,7 @@ const RegistrationForm = ({ onSubmit }) => {
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2">
-          Password
-        </label>
+        <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
         <input
           type="password"
           name="password"
@@ -89,4 +85,4 @@ const RegistrationForm = ({ onSubmit }) => {
   );
 };
 
-export default RegistrationForm; 
+export default RegistrationForm;

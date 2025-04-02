@@ -13,24 +13,22 @@ describe('Authentication Routes', () => {
   describe('POST /api/auth/register', () => {
     const validUser = {
       email: 'test@example.com',
-      password: 'password123'
+      password: 'password123',
     };
 
     it('should register a new user successfully', async () => {
       // Mock database responses
       query.mockResolvedValueOnce({ rows: [] }); // Check existing user
       query.mockResolvedValueOnce({ rows: [{ id: 1, email: validUser.email }] }); // Create user
-      
+
       // Mock bcrypt
       bcrypt.genSalt.mockResolvedValueOnce('salt');
       bcrypt.hash.mockResolvedValueOnce('hashedPassword');
-      
+
       // Mock JWT
       jwt.sign.mockReturnValueOnce('test-token');
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(validUser);
+      const response = await request(app).post('/api/auth/register').send(validUser);
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('user');
@@ -42,21 +40,17 @@ describe('Authentication Routes', () => {
     it('should return 400 for existing email', async () => {
       query.mockResolvedValueOnce({ rows: [{ id: 1 }] }); // User exists
 
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send(validUser);
+      const response = await request(app).post('/api/auth/register').send(validUser);
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('Email already registered');
     });
 
     it('should validate email format', async () => {
-      const response = await request(app)
-        .post('/api/auth/register')
-        .send({
-          email: 'invalid-email',
-          password: 'password123'
-        });
+      const response = await request(app).post('/api/auth/register').send({
+        email: 'invalid-email',
+        password: 'password123',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.errors).toBeDefined();
@@ -66,24 +60,22 @@ describe('Authentication Routes', () => {
   describe('POST /api/auth/login', () => {
     const validCredentials = {
       email: 'test@example.com',
-      password: 'password123'
+      password: 'password123',
     };
 
     it('should login successfully with valid credentials', async () => {
       // Mock database response
       query.mockResolvedValueOnce({
-        rows: [{ id: 1, email: validCredentials.email, password_hash: 'hashedPassword' }]
+        rows: [{ id: 1, email: validCredentials.email, password_hash: 'hashedPassword' }],
       });
-      
+
       // Mock bcrypt
       bcrypt.compare.mockResolvedValueOnce(true);
-      
+
       // Mock JWT
       jwt.sign.mockReturnValueOnce('test-token');
 
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(validCredentials);
+      const response = await request(app).post('/api/auth/login').send(validCredentials);
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('user');
@@ -94,13 +86,11 @@ describe('Authentication Routes', () => {
 
     it('should return 401 for invalid credentials', async () => {
       query.mockResolvedValueOnce({
-        rows: [{ id: 1, email: validCredentials.email, password_hash: 'hashedPassword' }]
+        rows: [{ id: 1, email: validCredentials.email, password_hash: 'hashedPassword' }],
       });
       bcrypt.compare.mockResolvedValueOnce(false);
 
-      const response = await request(app)
-        .post('/api/auth/login')
-        .send(validCredentials);
+      const response = await request(app).post('/api/auth/login').send(validCredentials);
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Invalid credentials');
@@ -110,10 +100,10 @@ describe('Authentication Routes', () => {
   describe('GET /api/auth/me', () => {
     it('should return user data for authenticated request', async () => {
       const mockUser = { id: 1, email: 'test@example.com' };
-      
+
       // Mock JWT verification
       jwt.verify.mockReturnValueOnce({ id: mockUser.id });
-      
+
       // Mock database response
       query.mockResolvedValueOnce({ rows: [mockUser] });
 
@@ -126,11 +116,10 @@ describe('Authentication Routes', () => {
     });
 
     it('should return 401 for missing token', async () => {
-      const response = await request(app)
-        .get('/api/auth/me');
+      const response = await request(app).get('/api/auth/me');
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Please authenticate');
     });
   });
-}); 
+});

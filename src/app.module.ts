@@ -3,8 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { LegalConsentModule } from './legal-consent/legal-consent.module';
-import { DmcaModule } from './modules/dmca.module';
+import { DmcaModule } from './modules/dmca/dmca.module';
 import { typeOrmConfig } from './config/typeorm.config';
+import { ServiceModule } from './modules/service.module';
 
 @Module({
   imports: [
@@ -12,9 +13,10 @@ import { typeOrmConfig } from './config/typeorm.config';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot(typeOrmConfig),
+    ServiceModule,
     AuthModule,
     LegalConsentModule,
     DmcaModule,
   ],
 })
-export class AppModule {} 
+export class AppModule {}

@@ -16,4 +16,4 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   migrations: ['src/migrations/*.ts'],
   migrationsRun: true,
   migrationsTableName: 'migrations',
-}; 
+};

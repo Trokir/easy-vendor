@@ -61,4 +61,4 @@ export class CreateLegalConsentTable1709123456789 implements MigrationInterface 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropTable('legal_consents');
   }
-} 
+}

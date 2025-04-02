@@ -14,4 +14,4 @@ export const AppDataSource = new DataSource({
   entities: [User, Vendor, LegalConsent, DmcaReport],
   migrations: ['src/migrations/*.ts'],
   migrationsTableName: 'migrations',
-}); 
+});

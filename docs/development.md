@@ -12,22 +12,26 @@
 ### Local Development
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/Trokir/easy-vendor.git
 cd easy-vendor
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 ```
 
 4. Start development servers:
+
 ```bash
 # Frontend
 pnpm dev:frontend
@@ -39,16 +43,19 @@ pnpm dev:backend
 ### Database Setup
 
 1. Create PostgreSQL database:
+
 ```bash
 createdb easy_vendor_dev
 ```
 
 2. Run migrations:
+
 ```bash
 pnpm db:migrate
 ```
 
 3. Seed development data:
+
 ```bash
 pnpm db:seed
 ```
@@ -88,6 +95,7 @@ type(scope): description
 ```
 
 Types:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -199,4 +207,4 @@ pnpm test:coverage
 - Chrome DevTools
 - VS Code debugger
 - pgAdmin
-- Redis CLI 
+- Redis CLI

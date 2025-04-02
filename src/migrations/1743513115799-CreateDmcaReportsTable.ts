@@ -1,9 +1,8 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateDmcaReportsTable1743513115799 implements MigrationInterface {
-
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
             CREATE TABLE dmca_reports (
                 id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
                 content_url VARCHAR(255) NOT NULL,
@@ -18,10 +17,9 @@ export class CreateDmcaReportsTable1743513115799 implements MigrationInterface {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
-    }
+  }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`DROP TABLE dmca_reports;`);
-    }
-
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`DROP TABLE dmca_reports;`);
+  }
 }

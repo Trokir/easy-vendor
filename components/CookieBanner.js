@@ -41,4 +41,4 @@ const CookieBanner = ({ message = 'We use cookies for authentication and analyti
   );
 };
 
-export default CookieBanner; 
+export default CookieBanner;

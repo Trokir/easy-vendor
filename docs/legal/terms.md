@@ -33,6 +33,7 @@ Easy Vendor provides a platform for creating and managing business websites, inc
 ### 4.2 Account Termination
 
 We may terminate accounts that:
+
 - Violate these Terms
 - Engage in fraudulent activity
 - Remain inactive for 12 months
@@ -42,6 +43,7 @@ We may terminate accounts that:
 ### 5.1 Content
 
 Users must not:
+
 - Post illegal or harmful content
 - Violate intellectual property rights
 - Engage in spam or phishing
@@ -50,6 +52,7 @@ Users must not:
 ### 5.2 Security
 
 Users must:
+
 - Maintain account security
 - Report security vulnerabilities
 - Not attempt to breach system security
@@ -64,6 +67,7 @@ Users must:
 ### 6.2 License
 
 We grant Users a limited, non-exclusive license to:
+
 - Use the Service as intended
 - Create and manage business websites
 - Access provided templates and features
@@ -87,6 +91,7 @@ We grant Users a limited, non-exclusive license to:
 ### 8.1 Maximum Liability
 
 Our maximum liability is limited to:
+
 - The amount paid for the Service
 - Direct damages only
 - No liability for indirect damages
@@ -122,10 +127,11 @@ These Terms are governed by Florida law.
 ## 12. Contact
 
 For questions about these Terms, contact:
+
 - Email: legal@easyvendor.com
 - Address: [Company Address]
 - Phone: [Company Phone]
 
 ## 13. Severability
 
-If any provision is invalid, the rest remains enforceable. 
+If any provision is invalid, the rest remains enforceable.

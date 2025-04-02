@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DmcaReport } from '../entities/dmca-report.entity';
-import { CreateDmcaReportDto, UpdateDmcaReportDto } from '../dto/dmca-report.dto';
+import { CreateDmcaReportDto, DmcaReportStatus, UpdateDmcaReportDto } from '../dto/dmca-report.dto';
 
 @Injectable()
 export class DmcaReportService {
   constructor(
     @InjectRepository(DmcaReport)
-    private dmcaReportRepository: Repository<DmcaReport>,
+    private dmcaReportRepository: Repository<DmcaReport>
   ) {}
 
   async create(createDmcaReportDto: CreateDmcaReportDto): Promise<DmcaReport> {
@@ -24,15 +24,25 @@ export class DmcaReportService {
     return this.dmcaReportRepository.findOne({ where: { id } });
   }
 
-  async process(id: string, updateDmcaReportDto: UpdateDmcaReportDto): Promise<DmcaReport> {
+  async update(id: string, updateDmcaReportDto: UpdateDmcaReportDto): Promise<DmcaReport> {
     const report = await this.findOne(id);
+    
     if (!report) {
-      throw new Error('DMCA report not found');
+      return null;
     }
-
-    report.isProcessed = true;
-    report.processedAt = new Date();
-    report.processingNotes = updateDmcaReportDto.processingNotes;
+    
+    // Обновляем только те поля, которые присутствуют в DTO
+    if (updateDmcaReportDto.status) {
+      report.status = updateDmcaReportDto.status;
+    }
+    
+    if (updateDmcaReportDto.adminNotes !== undefined) {
+      report.adminNotes = updateDmcaReportDto.adminNotes;
+    }
+    
+    if (updateDmcaReportDto.assignedTo !== undefined) {
+      report.assignedTo = updateDmcaReportDto.assignedTo;
+    }
 
     return this.dmcaReportRepository.save(report);
   }
@@ -40,4 +50,4 @@ export class DmcaReportService {
   async remove(id: string): Promise<void> {
     await this.dmcaReportRepository.delete(id);
   }
-} 
+}

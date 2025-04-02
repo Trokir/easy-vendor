@@ -73,7 +73,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, onError })
         label="Email"
         type="email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={e => setEmail(e.target.value)}
         error={!!errors.email}
         helperText={errors.email}
         margin="normal"
@@ -85,7 +85,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, onError })
         label="Password"
         type="password"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={e => setPassword(e.target.value)}
         error={!!errors.password}
         helperText={errors.password}
         margin="normal"
@@ -111,4 +111,4 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, onError })
       </Button>
     </Box>
   );
-}; 
+};

@@ -6,6 +6,7 @@ import { RecordConsentDto } from './dto/record-consent.dto';
 import { ConsentStatusDto } from './dto/consent-status.dto';
 import { ConsentHistoryDto } from './dto/consent-history.dto';
 import { addDays } from 'date-fns';
+import { ConsentType } from '../types/legal-consent';
 
 @Injectable()
 export class LegalConsentService {
@@ -15,12 +16,16 @@ export class LegalConsentService {
   ) {}
 
   async recordConsent(dto: RecordConsentDto, ip: string): Promise<void> {
+    const metadata = {
+      ...dto.metadata,
+      ip
+    };
+
     await this.legalConsentRepository.save({
       userId: dto.userId,
-      documentType: dto.type,
+      consentType: dto.type as unknown as ConsentType,
       version: dto.version,
-      ip,
-      metadata: dto.metadata
+      metadata
     });
   }
 
@@ -28,11 +33,11 @@ export class LegalConsentService {
     const consent = await this.legalConsentRepository.findOne({
       where: {
         userId,
-        documentType: type
+        consentType: type as unknown as ConsentType,
       },
       order: {
-        acceptedAt: 'DESC'
-      }
+        acceptedAt: 'DESC',
+      },
     });
 
     if (!consent) {
@@ -47,28 +52,27 @@ export class LegalConsentService {
       version: consent.version,
       acceptedAt,
       expiresAt,
-      ip: consent.ip
+      ip: consent.metadata?.ip,
     };
   }
 
   async getConsentHistory(userId: number, type?: string): Promise<ConsentHistoryDto[]> {
-    const query = this.legalConsentRepository.createQueryBuilder('consent')
+    const query = this.legalConsentRepository
+      .createQueryBuilder('consent')
       .where('consent.userId = :userId', { userId });
 
     if (type) {
-      query.andWhere('consent.documentType = :type', { type });
+      query.andWhere('consent.consentType = :type', { type });
     }
 
-    const consents = await query
-      .orderBy('consent.acceptedAt', 'DESC')
-      .getMany();
+    const consents = await query.orderBy('consent.acceptedAt', 'DESC').getMany();
 
     return consents.map(consent => ({
-      type: consent.documentType,
+      type: consent.consentType,
       version: consent.version,
       acceptedAt: new Date(consent.acceptedAt),
-      ip: consent.ip,
-      metadata: consent.metadata
+      ip: consent.metadata?.ip,
+      metadata: consent.metadata,
     }));
   }
-} 
+}

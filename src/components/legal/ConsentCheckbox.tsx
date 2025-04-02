@@ -7,6 +7,9 @@ interface ConsentCheckboxProps {
   error?: boolean;
   label?: string;
   required?: boolean;
+  termsLink?: string;
+  privacyLink?: string;
+  disabled?: boolean;
 }
 
 export const ConsentCheckbox: React.FC<ConsentCheckboxProps> = ({
@@ -15,25 +18,31 @@ export const ConsentCheckbox: React.FC<ConsentCheckboxProps> = ({
   error,
   label = 'I accept the',
   required = true,
+  termsLink = '/terms',
+  privacyLink = '/privacy',
+  disabled = false,
 }) => {
   return (
     <FormControlLabel
       control={
         <Checkbox
           checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={e => onChange(e.target.checked)}
           color={error ? 'error' : 'primary'}
           required={required}
+          disabled={disabled}
+          aria-invalid={error ? 'true' : undefined}
+          data-testid="checkbox-container"
         />
       }
       label={
         <Typography component="span" color={error ? 'error' : 'textPrimary'}>
           {label}{' '}
-          <Link href="/terms" target="_blank" rel="noopener noreferrer">
+          <Link href={termsLink} target="_blank" rel="noopener noreferrer">
             Terms of Service
           </Link>{' '}
           and{' '}
-          <Link href="/privacy" target="_blank" rel="noopener noreferrer">
+          <Link href={privacyLink} target="_blank" rel="noopener noreferrer">
             Privacy Policy
           </Link>
         </Typography>
@@ -41,4 +50,4 @@ export const ConsentCheckbox: React.FC<ConsentCheckboxProps> = ({
       sx={{ mt: 2 }}
     />
   );
-}; 
+};

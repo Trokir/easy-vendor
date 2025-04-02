@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { Vendor } from './vendor.entity';
 import { LegalConsent } from './legal-consent.entity';
 
@@ -7,13 +14,13 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   passwordHash: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   role: string;
 
   @OneToMany(() => Vendor, vendor => vendor.user)
@@ -27,4 +34,4 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

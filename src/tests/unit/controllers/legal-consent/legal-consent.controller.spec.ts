@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LegalConsentController } from '../../../../controllers/legal-consent/legal-consent.controller';
-import { LegalConsentService } from '../../../../services/legal-consent/legal-consent.service';
-import { CreateConsentDto } from '../../../../services/legal-consent/legal-consent.types';
+import { LegalConsentService } from '../../../../services/legalConsent.service';
+import { CreateConsentDto } from '../../../../types/consent.types';
+import { ConsentType } from '../../../../types/legal-consent';
 
 describe('LegalConsentController', () => {
   let controller: LegalConsentController;
@@ -39,10 +40,10 @@ describe('LegalConsentController', () => {
   describe('createConsent', () => {
     it('should create a new consent', async () => {
       const createConsentDto: CreateConsentDto = {
-        userId: 'test-user-id',
-        consentType: 'terms',
+        userId: 1,
+        consentType: ConsentType.TERMS_OF_SERVICE,
         version: '1.0',
-        metadata: { ip: '127.0.0.1' },
+        metadata: { timestamp: Date.now(), ip: '127.0.0.1' },
       };
 
       const mockConsent = {
@@ -59,7 +60,7 @@ describe('LegalConsentController', () => {
         createConsentDto.userId,
         createConsentDto.consentType,
         createConsentDto.version,
-        createConsentDto.metadata,
+        createConsentDto.metadata
       );
       expect(result).toEqual(mockConsent);
     });
@@ -67,21 +68,23 @@ describe('LegalConsentController', () => {
 
   describe('getConsentHistory', () => {
     it('should return consent history for a user', async () => {
-      const userId = 'test-user-id';
+      const userId = 1;
       const mockConsents = [
         {
           id: 'test-id-1',
           userId,
-          consentType: 'terms',
+          consentType: ConsentType.TERMS_OF_SERVICE,
           version: '1.0',
           acceptedAt: new Date(),
+          metadata: { timestamp: Date.now() },
         },
         {
           id: 'test-id-2',
           userId,
-          consentType: 'privacy',
+          consentType: ConsentType.PRIVACY_POLICY,
           version: '1.0',
           acceptedAt: new Date(),
+          metadata: { timestamp: Date.now() },
         },
       ];
 
@@ -96,8 +99,8 @@ describe('LegalConsentController', () => {
 
   describe('checkConsentValidity', () => {
     it('should return consent validity status', async () => {
-      const userId = 'test-user-id';
-      const consentType = 'terms';
+      const userId = 1;
+      const consentType = ConsentType.TERMS_OF_SERVICE;
       const version = '1.0';
 
       mockLegalConsentService.hasValidConsent.mockResolvedValue(true);
@@ -107,9 +110,9 @@ describe('LegalConsentController', () => {
       expect(mockLegalConsentService.hasValidConsent).toHaveBeenCalledWith(
         userId,
         consentType,
-        version,
+        version
       );
       expect(result).toEqual({ isValid: true });
     });
   });
-}); 
+});

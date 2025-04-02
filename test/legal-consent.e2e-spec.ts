@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -145,9 +145,7 @@ describe('LegalConsentController (e2e)', () => {
     });
 
     it('should not get consent history without token', () => {
-      return request(app.getHttpServer())
-        .get('/legal-consent/history/1')
-        .expect(401);
+      return request(app.getHttpServer()).get('/legal-consent/history/1').expect(401);
     });
   });
-}); 
+});

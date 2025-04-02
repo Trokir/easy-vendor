@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CookieBanner } from '../legal/CookieBanner';
-import { useConsent } from '../../hooks/useConsent';
+import { useLegalConsent, ConsentType } from '../../contexts/LegalConsentContext';
 
 const COOKIE_CONSENT_KEY = 'cookie_consent';
 
@@ -10,12 +10,14 @@ interface CookieConsentProps {
 
 export const CookieConsent: React.FC<CookieConsentProps> = ({ onError }) => {
   const [showBanner, setShowBanner] = useState(false);
-  const { recordConsent } = useConsent({
-    userId: 'anonymous',
-    consentType: 'cookies',
-    version: '1.0',
-    onError,
-  });
+  const { recordConsent, error } = useLegalConsent();
+  
+  // Handle errors from the consent context
+  useEffect(() => {
+    if (error && onError) {
+      onError(error);
+    }
+  }, [error, onError]);
 
   useEffect(() => {
     const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
@@ -24,11 +26,21 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({ onError }) => {
 
   const handleAccept = async () => {
     try {
-      await recordConsent({ timestamp: Date.now() });
+      // Используем userId = 0 для анонимных пользователей (не аутентифицированных)
+      await recordConsent(ConsentType.COOKIE_POLICY, '1.0');
       localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
       setShowBanner(false);
     } catch (error) {
-      onError?.(error instanceof Error ? error.message : 'Failed to record cookie consent');
+      console.error('Error in handleAccept:', error);
+      // Если произошла ошибка из-за отсутствия аутентификации, все равно сохраняем согласие локально
+      localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
+      setShowBanner(false);
+      // Сообщаем об ошибке, если есть обработчик
+      if (error instanceof Error) {
+        onError?.(error.message);
+      } else {
+        onError?.('Failed to record cookie consent');
+      }
     }
   };
 
@@ -49,4 +61,4 @@ export const CookieConsent: React.FC<CookieConsentProps> = ({ onError }) => {
       learnMoreButtonText="Learn more about cookies"
     />
   );
-}; 
+};

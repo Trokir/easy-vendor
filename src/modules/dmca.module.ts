@@ -10,4 +10,4 @@ import { DmcaReportController } from '../controllers/dmca-report.controller';
   providers: [DmcaReportService],
   exports: [DmcaReportService],
 })
-export class DmcaModule {} 
+export class DmcaModule {}

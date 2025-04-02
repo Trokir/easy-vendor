@@ -53,5 +53,6 @@ Welcome to Easy Vendor. By accessing or using our service, you agree to be bound
 ## 10. Contact Information
 
 For questions about these Terms of Service, please contact us at:
+
 - Email: legal@easyvendor.com
-- Address: [Company Address] 
+- Address: [Company Address]

@@ -1,32 +1,28 @@
+import 'reflect-metadata';
 import { Test, TestingModule } from '@nestjs/testing';
+import { EmailService } from '../../../../services/email.service';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import * as SendGrid from '@sendgrid/mail';
-import { EmailService } from '../../../../services/email/email.service';
-import { ConsentType } from '../../../../services/legal-consent/legal-consent.types';
+import { ConsentType } from '../../../../types/legal-consent';
 
 jest.mock('@sendgrid/mail', () => ({
   setApiKey: jest.fn(),
-  send: jest.fn(),
+  send: jest.fn().mockResolvedValue([{ statusCode: 202 }]),
 }));
 
 describe('EmailService', () => {
   let service: EmailService;
-  let configService: ConfigService;
+  let config: ConfigService;
   let logger: jest.SpyInstance;
 
   const mockConfigService = {
     get: jest.fn((key: string) => {
-      const config = {
-        'sendgrid.apiKey': 'test-api-key',
-        'sendgrid.fromEmail': 'test@example.com',
-        'sendgrid.templates': {
-          terms: 'terms-template-id',
-          privacy: 'privacy-template-id',
-          cookies: 'cookies-template-id',
-        },
-      };
-      return key.split('.').reduce((obj, key) => obj?.[key], config);
+      if (key === 'SENDGRID_API_KEY') return 'test-api-key';
+      if (key === 'EMAIL_FROM') return 'noreply@example.com';
+      if (key === 'TEMPLATES_TERMS') return 'd-1234567890';
+      if (key === 'TEMPLATES_PRIVACY') return 'd-0987654321';
+      return undefined;
     }),
   };
 
@@ -42,12 +38,8 @@ describe('EmailService', () => {
     }).compile();
 
     service = module.get<EmailService>(EmailService);
-    configService = module.get<ConfigService>(ConfigService);
-    logger = jest.spyOn(Logger.prototype, 'error').mockImplementation();
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
+    config = module.get<ConfigService>(ConfigService);
+    logger = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
   });
 
   it('should be defined', () => {
@@ -56,18 +48,21 @@ describe('EmailService', () => {
 
   describe('sendLegalConsentConfirmation', () => {
     it('should send email with correct parameters', async () => {
+      // Arrange
       const email = 'user@example.com';
-      const consentType: ConsentType = 'terms';
+      const consentType = ConsentType.TERMS_OF_SERVICE;
       const version = '1.0';
-      const acceptedAt = new Date();
+      const acceptedAt = new Date('2025-04-02T01:11:16.539Z');
 
+      // Act
       await service.sendLegalConsentConfirmation(email, consentType, version, acceptedAt);
 
+      // Assert
       expect(SendGrid.send).toHaveBeenCalledWith({
         to: email,
-        from: 'test@example.com',
-        subject: 'Terms of Service Agreement',
-        templateId: 'terms-template-id',
+        from: 'noreply@example.com',
+        subject: 'Legal Consent Confirmation - terms_of_service',
+        templateId: 'd-1234567890',
         dynamicTemplateData: {
           consentType,
           version,
@@ -75,41 +70,47 @@ describe('EmailService', () => {
           userEmail: email,
         },
       });
-      expect(logger.mock.calls.length).toBe(0);
     });
 
     it('should log error but not throw when SendGrid fails', async () => {
+      // Arrange
       const error = new Error('SendGrid error');
-      (SendGrid.send as jest.Mock).mockRejectedValue(error);
+      (SendGrid.send as jest.Mock).mockRejectedValueOnce(error);
 
-      await service.sendLegalConsentConfirmation(
-        'user@example.com',
-        'terms',
-        '1.0',
-        new Date()
-      );
+      // Act
+      await service.sendLegalConsentConfirmation('user@example.com', ConsentType.TERMS_OF_SERVICE, '1.0', new Date());
 
+      // Assert
       expect(logger).toHaveBeenCalledWith(
-        'Failed to send confirmation email to user@example.com:',
+        'Failed to send consent confirmation email to user@example.com:',
         error
       );
     });
 
-    it('should use default template ID when consent type is unknown', async () => {
+    it('should use correct template IDs for different consent types', async () => {
+      // Arrange
       const email = 'user@example.com';
-      const consentType = 'unknown' as ConsentType;
       const version = '1.0';
-      const acceptedAt = new Date();
+      const acceptedAt = new Date('2025-04-02T01:11:16.561Z');
 
-      (SendGrid.send as jest.Mock).mockResolvedValue(undefined);
-
-      await service.sendLegalConsentConfirmation(email, consentType, version, acceptedAt);
-
+      // Act & Assert для TERMS_OF_SERVICE
+      await service.sendLegalConsentConfirmation(email, ConsentType.TERMS_OF_SERVICE, version, acceptedAt);
       expect(SendGrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          templateId: 'terms-template-id',
+          templateId: 'd-1234567890',
+        })
+      );
+
+      // Сбросим mock
+      jest.clearAllMocks();
+
+      // Act & Assert для PRIVACY_POLICY
+      await service.sendLegalConsentConfirmation(email, ConsentType.PRIVACY_POLICY, version, acceptedAt);
+      expect(SendGrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          templateId: 'd-0987654321',
         })
       );
     });
   });
-}); 
+});

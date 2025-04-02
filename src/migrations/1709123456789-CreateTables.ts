@@ -62,4 +62,4 @@ export class CreateTables1709123456789 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE IF EXISTS vendors;`);
     await queryRunner.query(`DROP TABLE IF EXISTS users;`);
   }
-} 
+}

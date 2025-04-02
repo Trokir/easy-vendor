@@ -128,7 +128,7 @@ describe('LegalConsentService', () => {
           acceptedAt: consent.acceptedAt,
           ip: consent.ip,
           metadata: consent.metadata,
-        })),
+        }))
       );
     });
 
@@ -144,8 +144,8 @@ describe('LegalConsentService', () => {
           acceptedAt: consent.acceptedAt,
           ip: consent.ip,
           metadata: consent.metadata,
-        })),
+        }))
       );
     });
   });
-}); 
+});

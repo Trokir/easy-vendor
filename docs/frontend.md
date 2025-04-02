@@ -27,15 +27,11 @@ src/
 A reusable checkbox component for legal consent forms.
 
 ```tsx
-<ConsentCheckbox
-  checked={accepted}
-  onChange={setAccepted}
-  error={!!error}
-  label="I accept the"
-/>
+<ConsentCheckbox checked={accepted} onChange={setAccepted} error={!!error} label="I accept the" />
 ```
 
 Props:
+
 - `checked`: boolean - Whether the checkbox is checked
 - `onChange`: (checked: boolean) => void - Callback when checkbox state changes
 - `error`: boolean - Whether to show error state
@@ -57,6 +53,7 @@ A banner component for cookie consent.
 ```
 
 Props:
+
 - `open`: boolean - Whether the banner is visible
 - `onAccept`: () => void - Callback when user accepts
 - `onDecline`: () => void - Callback when user declines
@@ -71,13 +68,11 @@ Props:
 A registration form with legal consent integration.
 
 ```tsx
-<RegisterForm
-  onSubmit={handleSubmit}
-  onError={handleError}
-/>
+<RegisterForm onSubmit={handleSubmit} onError={handleError} />
 ```
 
 Props:
+
 - `onSubmit`: (data: { email: string; password: string }) => Promise<void> - Form submission handler
 - `onError`: (error: string) => void - Error handler
 
@@ -90,6 +85,7 @@ A wrapper component for cookie consent banner.
 ```
 
 Props:
+
 - `onError`: (error: string) => void - Error handler
 
 ## Hooks
@@ -108,12 +104,14 @@ const { isAccepted, isLoading, error, recordConsent, checkConsent } = useConsent
 ```
 
 Options:
+
 - `userId`: string - User ID
 - `consentType`: ConsentType - Type of consent
 - `version`: string - Version of consent
 - `onError`: (error: string) => void - Error handler
 
 Returns:
+
 - `isAccepted`: boolean - Whether consent is accepted
 - `isLoading`: boolean - Loading state
 - `error`: string | null - Error message
@@ -128,20 +126,15 @@ Returns:
 import { RegisterForm } from './components/auth/RegisterForm';
 
 const RegisterPage = () => {
-  const handleSubmit = async (data) => {
+  const handleSubmit = async data => {
     // Handle registration
   };
 
-  const handleError = (error) => {
+  const handleError = error => {
     // Handle errors
   };
 
-  return (
-    <RegisterForm
-      onSubmit={handleSubmit}
-      onError={handleError}
-    />
-  );
+  return <RegisterForm onSubmit={handleSubmit} onError={handleError} />;
 };
 ```
 
@@ -151,7 +144,7 @@ const RegisterPage = () => {
 import { CookieConsent } from './components/layout/CookieConsent';
 
 const App = () => {
-  const handleError = (error) => {
+  const handleError = error => {
     // Handle errors
   };
 
@@ -169,6 +162,7 @@ const App = () => {
 The components use Material-UI for styling. You can customize the theme by:
 
 1. Creating a theme file:
+
 ```tsx
 // src/theme.ts
 import { createTheme } from '@mui/material/styles';
@@ -179,16 +173,13 @@ export const theme = createTheme({
 ```
 
 2. Applying the theme:
+
 ```tsx
 // src/App.tsx
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './theme';
 
-const App = () => (
-  <ThemeProvider theme={theme}>
-    {/* App content */}
-  </ThemeProvider>
-);
+const App = () => <ThemeProvider theme={theme}>{/* App content */}</ThemeProvider>;
 ```
 
 ## Testing
@@ -225,4 +216,4 @@ describe('ConsentCheckbox', () => {
 
 ## License
 
-MIT 
+MIT

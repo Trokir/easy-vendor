@@ -61,4 +61,4 @@ describe('AuthGuard', () => {
       expect(mockRequest.user).toEqual(mockPayload);
     });
   });
-}); 
+});

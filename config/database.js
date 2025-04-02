@@ -31,9 +31,9 @@ const config = {
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
     ssl: {
-      rejectUnauthorized: false
-    }
-  }
+      rejectUnauthorized: false,
+    },
+  },
 };
 
-module.exports = config[process.env.NODE_ENV || 'development']; 
+module.exports = config[process.env.NODE_ENV || 'development'];

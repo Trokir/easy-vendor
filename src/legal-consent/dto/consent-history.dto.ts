@@ -15,4 +15,4 @@ export class ConsentHistoryDto {
 
   @ApiPropertyOptional({ description: 'Additional metadata stored with the consent' })
   metadata?: Record<string, any>;
-} 
+}

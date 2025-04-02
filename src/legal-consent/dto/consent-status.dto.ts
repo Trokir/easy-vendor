@@ -15,4 +15,4 @@ export class ConsentStatusDto {
 
   @ApiProperty({ description: 'IP address from which the consent was given' })
   ip: string;
-} 
+}

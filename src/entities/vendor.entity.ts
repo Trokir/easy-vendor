@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity('vendors')
@@ -6,16 +13,16 @@ export class Vendor {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'int' })
   userId: number;
 
-  @Column()
+  @Column({ type: 'varchar' })
   businessName: string;
 
-  @Column({ nullable: true, unique: true })
+  @Column({ type: 'varchar', nullable: true, unique: true })
   domain: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   templateType: string;
 
   @Column('jsonb', { default: {} })
@@ -29,4 +36,4 @@ export class Vendor {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

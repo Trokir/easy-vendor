@@ -8,4 +8,4 @@ export const emailConfig = {
       cookies: process.env.SENDGRID_COOKIES_TEMPLATE_ID,
     },
   },
-}; 
+};
