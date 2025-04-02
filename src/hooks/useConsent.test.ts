@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { useConsent } from './useConsent';
+import { ConsentType } from '../types/consent.types';
 
 describe('useConsent', () => {
   const mockFetch = jest.fn();
@@ -10,11 +11,13 @@ describe('useConsent', () => {
   });
 
   it('initializes with default values', () => {
-    const { result } = renderHook(() => useConsent({
-      userId: 'test-user',
-      consentType: 'terms',
-      version: '1.0',
-    }));
+    const { result } = renderHook(() =>
+      useConsent({
+        userId: 1,
+        consentType: ConsentType.TERMS_OF_SERVICE,
+        version: '1.0',
+      })
+    );
 
     expect(result.current.isAccepted).toBe(false);
     expect(result.current.isLoading).toBe(false);
@@ -27,11 +30,13 @@ describe('useConsent', () => {
       json: () => Promise.resolve({ accepted: true }),
     });
 
-    const { result } = renderHook(() => useConsent({
-      userId: 'test-user',
-      consentType: 'terms',
-      version: '1.0',
-    }));
+    const { result } = renderHook(() =>
+      useConsent({
+        userId: 1,
+        consentType: ConsentType.TERMS_OF_SERVICE,
+        version: '1.0',
+      })
+    );
 
     await act(async () => {
       await result.current.checkConsent();
@@ -48,11 +53,13 @@ describe('useConsent', () => {
       json: () => Promise.resolve({ success: true }),
     });
 
-    const { result } = renderHook(() => useConsent({
-      userId: 'test-user',
-      consentType: 'terms',
-      version: '1.0',
-    }));
+    const { result } = renderHook(() =>
+      useConsent({
+        userId: 1,
+        consentType: ConsentType.TERMS_OF_SERVICE,
+        version: '1.0',
+      })
+    );
 
     await act(async () => {
       const success = await result.current.recordConsent({ timestamp: Date.now() });
@@ -69,12 +76,14 @@ describe('useConsent', () => {
     mockFetch.mockRejectedValueOnce(new Error(errorMessage));
 
     const onError = jest.fn();
-    const { result } = renderHook(() => useConsent({
-      userId: 'test-user',
-      consentType: 'terms',
-      version: '1.0',
-      onError,
-    }));
+    const { result } = renderHook(() =>
+      useConsent({
+        userId: 1,
+        consentType: ConsentType.TERMS_OF_SERVICE,
+        version: '1.0',
+        onError,
+      })
+    );
 
     await act(async () => {
       await result.current.checkConsent();
@@ -91,12 +100,14 @@ describe('useConsent', () => {
     mockFetch.mockRejectedValueOnce(new Error(errorMessage));
 
     const onError = jest.fn();
-    const { result } = renderHook(() => useConsent({
-      userId: 'test-user',
-      consentType: 'terms',
-      version: '1.0',
-      onError,
-    }));
+    const { result } = renderHook(() =>
+      useConsent({
+        userId: 1,
+        consentType: ConsentType.TERMS_OF_SERVICE,
+        version: '1.0',
+        onError,
+      })
+    );
 
     await act(async () => {
       const success = await result.current.recordConsent({ timestamp: Date.now() });
@@ -112,11 +123,13 @@ describe('useConsent', () => {
   it('handles loading state correctly', async () => {
     mockFetch.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
 
-    const { result } = renderHook(() => useConsent({
-      userId: 'test-user',
-      consentType: 'terms',
-      version: '1.0',
-    }));
+    const { result } = renderHook(() =>
+      useConsent({
+        userId: 1,
+        consentType: ConsentType.TERMS_OF_SERVICE,
+        version: '1.0',
+      })
+    );
 
     act(() => {
       result.current.checkConsent();
@@ -130,4 +143,4 @@ describe('useConsent', () => {
 
     expect(result.current.isLoading).toBe(false);
   });
-}); 
+});

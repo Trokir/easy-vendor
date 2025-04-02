@@ -13,10 +13,7 @@ export class AuthController {
   @ApiResponse({ status: 201, description: 'User successfully registered' })
   @ApiResponse({ status: 403, description: 'Terms of Service not accepted' })
   @ApiResponse({ status: 409, description: 'User already exists' })
-  async register(
-    @Body() dto: RegisterDto,
-    @Ip() ip: string
-  ) {
+  async register(@Body() dto: RegisterDto, @Ip() ip: string) {
     return this.authService.register(dto, ip);
   }
-} 
+}

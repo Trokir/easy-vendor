@@ -235,7 +235,7 @@ import { EasyVendor } from '@easyvendor/sdk';
 
 const client = new EasyVendor({
   apiKey: 'your_api_key',
-  baseUrl: 'https://api.easyvendor.com/v1'
+  baseUrl: 'https://api.easyvendor.com/v1',
 });
 
 // Register a new vendor
@@ -243,15 +243,15 @@ const vendor = await client.vendors.register({
   email: 'user@example.com',
   password: 'secure_password',
   businessName: 'My Business',
-  templateType: 'it_consulting'
+  templateType: 'it_consulting',
 });
 
 // Update vendor profile
 await client.vendors.update({
   businessName: 'Updated Name',
   config: {
-    theme: 'dark'
-  }
+    theme: 'dark',
+  },
 });
 ```
 
@@ -278,4 +278,4 @@ client.vendors.update(
     business_name='Updated Name',
     config={'theme': 'dark'}
 )
-``` 
+```

@@ -1,6 +1,9 @@
 import { CONSENT_EXPIRY_DAYS } from './constants';
 
-export const isConsentExpired = (acceptedAt: Date, expiryDays: number = CONSENT_EXPIRY_DAYS): boolean => {
+export const isConsentExpired = (
+  acceptedAt: Date,
+  expiryDays: number = CONSENT_EXPIRY_DAYS
+): boolean => {
   const expiryDate = new Date(acceptedAt);
   expiryDate.setDate(expiryDate.getDate() + expiryDays);
   return new Date() > expiryDate;
@@ -16,7 +19,10 @@ export const formatDate = (date: Date): string => {
   }).format(date);
 };
 
-export const getConsentStatus = (isAccepted: boolean, isExpired: boolean): 'active' | 'expired' | 'none' => {
+export const getConsentStatus = (
+  isAccepted: boolean,
+  isExpired: boolean
+): 'active' | 'expired' | 'none' => {
   if (!isAccepted) return 'none';
   return isExpired ? 'expired' : 'active';
 };
@@ -61,4 +67,4 @@ export const debounce = <T extends (...args: any[]) => any>(
 
 export const generateConsentId = (): string => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
-}; 
+};

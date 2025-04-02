@@ -14,4 +14,4 @@ const customRender = (ui: React.ReactElement, options = {}) =>
 export * from '@testing-library/react';
 
 // override render method
-export { customRender as render }; 
+export { customRender as render };

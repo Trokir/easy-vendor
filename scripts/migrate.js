@@ -4,7 +4,7 @@ const { pool } = require('../utils/db');
 
 async function runMigrations() {
   const client = await pool.connect();
-  
+
   try {
     // Create migrations table if it doesn't exist
     await client.query(`
@@ -23,7 +23,8 @@ async function runMigrations() {
 
     // Get migration files
     const migrationsDir = path.join(__dirname, '../db/migrations');
-    const migrationFiles = fs.readdirSync(migrationsDir)
+    const migrationFiles = fs
+      .readdirSync(migrationsDir)
       .filter(file => file.endsWith('.sql') && !file.endsWith('_rollback.sql'))
       .sort();
 
@@ -31,18 +32,15 @@ async function runMigrations() {
     for (const file of migrationFiles) {
       if (!executedMigrationNames.includes(file)) {
         console.log(`Running migration: ${file}`);
-        
+
         const migrationPath = path.join(migrationsDir, file);
         const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
-        
+
         await client.query('BEGIN');
-        
+
         try {
           await client.query(migrationSQL);
-          await client.query(
-            'INSERT INTO migrations (name) VALUES ($1)',
-            [file]
-          );
+          await client.query('INSERT INTO migrations (name) VALUES ($1)', [file]);
           await client.query('COMMIT');
           console.log(`Migration ${file} completed successfully`);
         } catch (error) {
@@ -59,4 +57,4 @@ async function runMigrations() {
   }
 }
 
-runMigrations().catch(console.error); 
+runMigrations().catch(console.error);
