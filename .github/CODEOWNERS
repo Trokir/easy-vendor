@@ -1,0 +1,15 @@
+# Documentation owners
+/docs/* @Trokir
+*.md @Trokir
+
+# Architecture documentation
+ARCHITECTURE.md @Trokir
+
+# Legal documentation
+/docs/legal/* @Trokir
+
+# API documentation
+/docs/api/* @Trokir
+
+# Development guides
+/docs/development/* @Trokir 
