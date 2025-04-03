@@ -2,6 +2,20 @@
 
 A modern e-commerce platform built with React, Node.js, and TypeScript.
 
+## Current Sprint Status
+
+### Sprint 2 (In Progress)
+- 🧪 Testing Infrastructure Improvements
+  - Migrated to Vitest
+  - Enhanced test coverage
+  - Fixed service mocks
+- 🛡️ Content Moderation System
+  - Security features implementation
+  - Content filtering
+- 💾 PostgreSQL JSONB Template Storage
+  - Database optimization
+  - Template management
+
 ## Features
 
 - 🛍️ Product Management

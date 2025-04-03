@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Current Sprint (Sprint 2)
+- Testing Infrastructure Improvements
+  - Migrated from Jest to Vitest
+  - Fixed service mocks
+  - Updated test configurations
+  - Enhanced test coverage
+- Content Moderation System (In Progress)
+  - Initial implementation started
+  - Security features being added
+- PostgreSQL JSONB Template Storage (In Progress)
+  - Database schema updates
+  - Template storage implementation
+
 ### Added
 - CCPA compliance features
 - Email notification system
