@@ -1,169 +1,88 @@
 # Easy Vendor
 
-EasyVendor - это веб-приложение для управления взаимоотношениями с поставщиками, которое упрощает процесс закупок, контрактов и оценки поставщиков.
+A modern e-commerce platform built with React, Node.js, and TypeScript.
 
-## Содержание
+## Features
 
-- [Установка](#установка)
-- [Использование](#использование)
-- [Структура проекта](#структура-проекта)
-- [Технологии](#технологии)
-- [API](#api)
-- [Лицензия](#лицензия)
-- [Контакты](#контакты)
+- 🛍️ Product Management
+- 🛒 Shopping Cart
+- 👤 User Authentication
+- 📱 Responsive Design
+- 🔒 CCPA Compliance
+- 📧 Email Notifications
+- 📍 Geolocation Services
+- 🔍 Search & Filtering
+- 💳 Payment Processing
+- 📊 Analytics Dashboard
 
-## Установка
+## Tech Stack
 
-### Предварительные требования
+- **Frontend**: React, TypeScript, Material-UI
+- **Backend**: Node.js, Express, TypeScript
+- **Database**: MongoDB
+- **Testing**: Vitest
+- **Email**: SendGrid
+- **Payment**: Stripe
+- **Analytics**: Google Analytics
 
-- Node.js v18+
-- npm v9+
-- PostgreSQL 14+
+## Getting Started
 
-### Установка зависимостей
+### Prerequisites
 
+- Node.js (v18 or higher)
+- MongoDB
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/easy-vendor.git
+cd easy-vendor
+```
+
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-### Настройка окружения
-
-1. Создайте файл `.env` в корне проекта
-2. Добавьте следующие переменные окружения:
-
-```
-# База данных
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=password
-DB_DATABASE=easyvendor
-
-# JWT
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=1d
-
-# SendGrid (для отправки электронной почты)
-SENDGRID_API_KEY=your_sendgrid_api_key
-```
-
-### Запуск миграций
-
+3. Set up environment variables:
 ```bash
-npm run migration:run
+cp .env.example .env
+```
+Edit `.env` with your configuration.
+
+4. Start the development servers:
+
+Backend (Port 3003):
+```bash
+node index.js
 ```
 
-## Использование
-
-### Запуск в режиме разработки
-
+Frontend (Port 3004):
 ```bash
 npm start
 ```
 
-### Сборка для продакшн
+## Testing
 
+Run tests with:
 ```bash
-npm run build
+npm test
 ```
 
-## Структура проекта
+## Contributing
 
-```
-easy-vendor/
-├── public/                     # Статические файлы
-├── src/
-│   ├── components/             # React компоненты
-│   │   ├── auth/               # Компоненты аутентификации
-│   │   ├── common/             # Общие компоненты
-│   │   ├── dashboard/          # Компоненты дашборда
-│   │   ├── layout/             # Компоненты разметки
-│   │   ├── legal/              # Компоненты для юридических страниц
-│   │   ├── vendors/            # Компоненты для работы с поставщиками
-│   │   └── ...                 # Остальные компоненты
-│   ├── contexts/               # React контексты
-│   ├── dto/                    # Data Transfer Objects
-│   ├── entities/               # Сущности TypeORM
-│   ├── hooks/                  # Пользовательские React хуки
-│   ├── migrations/             # Миграции базы данных
-│   ├── modules/                # NestJS модули
-│   ├── pages/                  # Страницы приложения
-│   ├── services/               # Сервисы
-│   ├── styles/                 # Стили
-│   ├── types/                  # TypeScript типы
-│   ├── utils/                  # Утилиты
-│   ├── App.tsx                 # Главный компонент
-│   └── index.tsx               # Точка входа
-├── .env                        # Переменные окружения
-├── .gitignore                  # Файлы, игнорируемые git
-├── package.json                # Зависимости и скрипты
-├── README.md                   # Документация проекта
-└── tsconfig.json               # Конфигурация TypeScript
-```
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Технологии
+## License
 
-### Фронтенд
-- React 18
-- TypeScript
-- Material UI 5
-- React Router 6
-- Axios
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Бэкенд
-- NestJS
-- TypeORM
-- PostgreSQL
-- JWT
-- SendGrid
+## Support
 
-## API
-
-### Аутентификация
-
-```
-POST /api/auth/register - Регистрация нового пользователя
-POST /api/auth/login - Вход в систему
-POST /api/auth/refresh - Обновление токена
-```
-
-### Поставщики
-
-```
-GET /api/vendors - Получение списка поставщиков
-GET /api/vendors/:id - Получение информации о поставщике
-POST /api/vendors - Создание нового поставщика
-PUT /api/vendors/:id - Обновление информации о поставщике
-DELETE /api/vendors/:id - Удаление поставщика
-```
-
-### Контракты
-
-```
-GET /api/contracts - Получение списка контрактов
-GET /api/contracts/:id - Получение информации о контракте
-POST /api/contracts - Создание нового контракта
-PUT /api/contracts/:id - Обновление информации о контракте
-DELETE /api/contracts/:id - Удаление контракта
-```
-
-### Оценки
-
-```
-GET /api/evaluations - Получение списка оценок
-GET /api/evaluations/:id - Получение информации об оценке
-POST /api/evaluations - Создание новой оценки
-PUT /api/evaluations/:id - Обновление информации об оценке
-DELETE /api/evaluations/:id - Удаление оценки
-```
-
-## Лицензия
-
-MIT
-
-## Контакты
-
-Если у вас есть вопросы или предложения, пожалуйста, свяжитесь с нами:
-
-- Email: info@easyvendor.com
-- Website: https://easyvendor.com
+For support, email support@easyvendor.com or join our Slack channel.
