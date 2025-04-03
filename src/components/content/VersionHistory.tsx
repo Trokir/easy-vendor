@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -22,16 +22,24 @@ import {
   MenuItem,
   Pagination,
   Stack,
+  Tooltip,
+  Paper,
+  InputAdornment,
 } from '@mui/material';
 import {
   Restore as RestoreIcon,
   Compare as CompareIcon,
   Delete as DeleteIcon,
   FilterList as FilterIcon,
+  Search as SearchIcon,
+  Download as DownloadIcon,
+  DateRange as DateRangeIcon,
 } from '@mui/icons-material';
 import { FixedSizeList as VirtualList } from 'react-window';
 import { api } from '../../services/api';
 import { VersionComparison } from './VersionComparison';
+import { format, parseISO } from 'date-fns';
+import { ru } from 'date-fns/locale';
 
 interface Version {
   id: string;
@@ -53,6 +61,15 @@ interface VersionHistoryProps {
 }
 
 const ITEMS_PER_PAGE = 20;
+const CACHE_EXPIRY = 5 * 60 * 1000; // 5 minutes
+
+interface CachedVersions {
+  data: Version[];
+  total: number;
+  timestamp: number;
+}
+
+const versionCache = new Map<string, CachedVersions>();
 
 export const VersionHistory: React.FC<VersionHistoryProps> = ({
   contentId,
@@ -73,14 +90,28 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
   const [filterType, setFilterType] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [dateRange, setDateRange] = useState<{ start: string | null; end: string | null }>({
+    start: null,
+    end: null,
+  });
 
-  useEffect(() => {
-    loadVersions();
-  }, [contentId, page, filterType, sortOrder]);
+  const cacheKey = useMemo(() => {
+    return `${contentId}-${page}-${filterType}-${sortOrder}-${searchQuery}-${dateRange.start}-${dateRange.end}`;
+  }, [contentId, page, filterType, sortOrder, searchQuery, dateRange]);
 
-  const loadVersions = async () => {
+  const loadVersions = useCallback(async () => {
     try {
       setLoading(true);
+      
+      // Check cache
+      const cached = versionCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_EXPIRY) {
+        setVersions(cached.data);
+        setTotalPages(Math.ceil(cached.total / ITEMS_PER_PAGE));
+        setLoading(false);
+        return;
+      }
+
       const response = await api.get(`/content/${contentId}/versions`, {
         params: {
           page,
@@ -88,8 +119,18 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
           type: filterType !== 'all' ? filterType : undefined,
           sort: sortOrder,
           search: searchQuery || undefined,
+          startDate: dateRange.start,
+          endDate: dateRange.end,
         },
       });
+
+      // Update cache
+      versionCache.set(cacheKey, {
+        data: response.data.items,
+        total: response.data.total,
+        timestamp: Date.now(),
+      });
+
       setVersions(response.data.items);
       setTotalPages(Math.ceil(response.data.total / ITEMS_PER_PAGE));
     } catch (err) {
@@ -98,7 +139,11 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [contentId, page, filterType, sortOrder, searchQuery, dateRange, cacheKey]);
+
+  useEffect(() => {
+    loadVersions();
+  }, [loadVersions]);
 
   const handleVersionSelect = (version: Version) => {
     setSelectedVersion(version);
@@ -182,6 +227,32 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
   const handleCompare = (version: Version) => {
     setCompareVersion(version);
     setShowCompareDialog(true);
+  };
+
+  const handleExportHistory = async () => {
+    try {
+      const response = await api.get(`/content/${contentId}/versions/export`, {
+        params: {
+          type: filterType !== 'all' ? filterType : undefined,
+          sort: sortOrder,
+          search: searchQuery || undefined,
+          startDate: dateRange.start,
+          endDate: dateRange.end,
+        },
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `version-history-${contentId}.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      setError('Не удалось экспортировать историю версий');
+      console.error('Ошибка экспорта версий:', err);
+    }
   };
 
   const renderVersionType = (type: string) => {
@@ -270,6 +341,75 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
     );
   };
 
+  const renderFilters = () => (
+    <Paper elevation={0} sx={{ p: 2, mb: 2 }}>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+        <TextField
+          select
+          label="Тип версии"
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          sx={{ minWidth: 200 }}
+        >
+          <MenuItem value="all">Все версии</MenuItem>
+          <MenuItem value="auto">Автосохранение</MenuItem>
+          <MenuItem value="manual">Ручное сохранение</MenuItem>
+          <MenuItem value="publish">Публикация</MenuItem>
+        </TextField>
+
+        <TextField
+          label="Поиск"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ flexGrow: 1 }}
+        />
+
+        <TextField
+          label="Начальная дата"
+          type="date"
+          value={dateRange.start || ''}
+          onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <DateRangeIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          label="Конечная дата"
+          type="date"
+          value={dateRange.end || ''}
+          onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <DateRangeIcon />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <Button
+          variant="outlined"
+          startIcon={<DownloadIcon />}
+          onClick={handleExportHistory}
+        >
+          Экспорт
+        </Button>
+      </Stack>
+    </Paper>
+  );
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" p={3}>
@@ -298,88 +438,73 @@ export const VersionHistory: React.FC<VersionHistoryProps> = ({
 
   return (
     <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h6">
-          История версий
-        </Typography>
-        <Box display="flex" gap={2}>
-          <TextField
-            select
-            size="small"
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            label="Тип версии"
-          >
-            <MenuItem value="all">Все</MenuItem>
-            <MenuItem value="auto">Автосохранение</MenuItem>
-            <MenuItem value="manual">Ручное сохранение</MenuItem>
-            <MenuItem value="publish">Публикация</MenuItem>
-          </TextField>
-          <TextField
-            size="small"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            label="Поиск"
-            placeholder="Поиск по комментариям..."
-          />
-          <Button
-            variant="outlined"
-            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-          >
-            {sortOrder === 'asc' ? 'Сначала новые' : 'Сначала старые'}
-          </Button>
-        </Box>
-      </Box>
-
-      {selectedVersions.size > 0 && (
-        <Box mb={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleBulkRestore}
-            sx={{ mr: 1 }}
-          >
-            Восстановить выбранные
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleBulkDelete}
-          >
-            Удалить выбранные
-          </Button>
-        </Box>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
       )}
 
-      <Box mb={2}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={selectedVersions.size === versions.length}
-              onChange={handleSelectAll}
+      {renderFilters()}
+
+      {loading ? (
+        <Box display="flex" justifyContent="center" p={3}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={selectedVersions.size === versions.length}
+                  onChange={handleSelectAll}
+                />
+              }
+              label="Выбрать все"
             />
-          }
-          label="Выбрать все"
-        />
-      </Box>
+            {selectedVersions.size > 0 && (
+              <Stack direction="row" spacing={1}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<RestoreIcon />}
+                  onClick={handleBulkRestore}
+                >
+                  Восстановить выбранные
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteIcon />}
+                  onClick={handleBulkDelete}
+                >
+                  Удалить выбранные
+                </Button>
+              </Stack>
+            )}
+          </Box>
 
-      <VirtualList
-        height={400}
-        width="100%"
-        itemCount={versions.length}
-        itemSize={100}
-      >
-        {renderVersionItem}
-      </VirtualList>
+          <Paper elevation={0}>
+            <VirtualList
+              height={400}
+              width="100%"
+              itemCount={versions.length}
+              itemSize={72}
+            >
+              {renderVersionItem}
+            </VirtualList>
+          </Paper>
 
-      <Box display="flex" justifyContent="center" mt={2}>
-        <Pagination
-          count={totalPages}
-          page={page}
-          onChange={(_, value) => setPage(value)}
-          color="primary"
-        />
-      </Box>
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(_, value) => setPage(value)}
+              color="primary"
+            />
+          </Box>
+        </>
+      )}
 
       {/* Диалог подтверждения удаления */}
       <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
