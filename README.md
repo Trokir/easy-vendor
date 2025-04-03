@@ -1,102 +1,106 @@
 # Easy Vendor
 
-A modern e-commerce platform built with React, Node.js, and TypeScript.
+Платформа для создания и управления контентом веб-сайтов с поддержкой шаблонов и версионирования.
 
-## Current Sprint Status
+## Возможности
 
-### Sprint 2 (In Progress)
-- 🧪 Testing Infrastructure Improvements
-  - Migrated to Vitest
-  - Enhanced test coverage
-  - Fixed service mocks
-- 🛡️ Content Moderation System
-  - Security features implementation
-  - Content filtering
-- 💾 PostgreSQL JSONB Template Storage
-  - Database optimization
-  - Template management
+### Редактор контента
+- Интуитивно понятный интерфейс редактирования
+- Поддержка форматирования текста
+- Встраивание медиа-контента
+- Автосохранение изменений
+- История версий с возможностью сравнения и восстановления
 
-## Features
+### Система шаблонов
+- Готовые шаблоны для быстрого создания контента
+- Гибкая структура шаблонов (JSONB)
+- Категоризация и поиск шаблонов
+- Публичные и приватные шаблоны
+- Версионирование шаблонов
 
-- 🛍️ Product Management
-- 🛒 Shopping Cart
-- 👤 User Authentication
-- 📱 Responsive Design
-- 🔒 CCPA Compliance
-- 📧 Email Notifications
-- 📍 Geolocation Services
-- 🔍 Search & Filtering
-- 💳 Payment Processing
-- 📊 Analytics Dashboard
+### Управление контентом
+- Публикация контента
+- Распространение через различные каналы
+- Аналитика и статистика
+- Управление правами доступа
+- Совместная работа над контентом
 
-## Tech Stack
+## Технический стек
 
-- **Frontend**: React, TypeScript, Material-UI
-- **Backend**: Node.js, Express, TypeScript
-- **Database**: MongoDB
-- **Testing**: Vitest
-- **Email**: SendGrid
-- **Payment**: Stripe
-- **Analytics**: Google Analytics
+### Frontend
+- React
+- Material-UI
+- TypeScript
+- Redux для управления состоянием
+- React Router для навигации
 
-## Getting Started
+### Backend
+- NestJS
+- PostgreSQL с JSONB
+- TypeORM
+- JWT аутентификация
+- REST API
 
-### Prerequisites
+## Установка и запуск
 
-- Node.js (v18 or higher)
-- MongoDB
-- npm or yarn
+### Требования
+- Node.js 16+
+- PostgreSQL 13+
+- npm или yarn
 
-### Installation
-
-1. Clone the repository:
+### Установка
 ```bash
-git clone https://github.com/yourusername/easy-vendor.git
+# Клонирование репозитория
+git clone https://github.com/your-username/easy-vendor.git
 cd easy-vendor
-```
 
-2. Install dependencies:
-```bash
+# Установка зависимостей
 npm install
-```
 
-3. Set up environment variables:
-```bash
+# Настройка окружения
 cp .env.example .env
+# Отредактируйте .env файл с вашими настройками
+
+# Запуск миграций
+npm run migration:run
+
+# Запуск приложения
+npm run start:dev
 ```
-Edit `.env` with your configuration.
 
-4. Start the development servers:
+## Разработка
 
-Backend (Port 3003):
+### Структура проекта
+```
+src/
+├── components/     # React компоненты
+├── modules/        # NestJS модули
+├── services/       # Сервисы
+├── entities/       # Сущности базы данных
+├── controllers/    # Контроллеры API
+└── utils/          # Вспомогательные функции
+```
+
+### Команды
 ```bash
-node index.js
+# Запуск тестов
+npm run test
+
+# Линтинг
+npm run lint
+
+# Сборка
+npm run build
 ```
 
-Frontend (Port 3004):
-```bash
-npm start
-```
+## Документация
 
-## Testing
+Подробная документация доступна в директории `docs/`:
+- [Спринты](docs/SPRINT_STATUS.md)
+- [Вклад в проект](docs/CONTRIBUTING.md)
+- [Чек-лист перед разработкой](docs/BEFORE_DO_CHECKLIST.md)
+- [Редактор контента](docs/ISSUE_24_CONTENT_EDITOR.md)
 
-Run tests with:
-```bash
-npm test
-```
+## Лицензия
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For support, email support@easyvendor.com or join our Slack channel.
+MIT
