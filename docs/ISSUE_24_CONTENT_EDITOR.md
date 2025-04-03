@@ -63,6 +63,11 @@ The Content Editor is a critical component of the Easy Vendor platform that allo
 - [ ] API integration
 - [ ] Error handling
 - [ ] Documentation
+- [ ] Unit testing
+  - [ ] Service layer tests
+  - [ ] Component tests
+  - [ ] Hook tests
+  - [ ] Utility function tests
 
 ## Dependencies
 
